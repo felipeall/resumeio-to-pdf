@@ -1,57 +1,46 @@
 import argparse
 import json
-import os
 import requests
 from datetime import datetime
 from fpdf import FPDF
 
 
-def _get_metadata(metadata_url: str):
+def _get_resume_metadata(metadata_url: str, resume_id: str, cache_date: str):
 
-    request = requests.get(metadata_url)
+    request = requests.get(metadata_url.format(resume_id, cache_date))
     metadata = json.loads(request.text)
     metadata = metadata.get('pages')
 
     return metadata
 
-def _download_images(meta, resume_id, extension, cache_date, image_size, image_url):
+def _format_images_urls(metadata: list[dict], resume_id: str, extension: str, cache_date: str, image_size: int, image_url: str):
 
-    images_files = []
+    images_urls = []
 
-    for page_id in range(1, 1+len(meta)):
-        page_file = f"{resume_id}-{page_id}.{extension}"
+    for page_id in range(1, 1+len(metadata)):
         download_url = image_url.format(resume_id, page_id, extension, cache_date, image_size)
-        
-        image_data = requests.get(download_url).content
-        with open(page_file, 'wb') as handler:
-            handler.write(image_data)
-
-        images_files.append(page_file)
+        images_urls.append(download_url)
     
-    return images_files
+    return images_urls
 
-def _generate_pdf(meta, pages, pdfFileName):
-    w, h = meta[0].get('viewport').values()
+def _generate_pdf(metadata: list[dict], images_urls: list, resume_id: str, extension: str):
+    pdf_file_name = f"{resume_id}.pdf"
+    w, h = metadata[0].get('viewport').values()
 
     pdf = FPDF(format=(w, h))
     pdf.set_auto_page_break(0)
 
-    for i, page in enumerate(pages):
+    for i, image_url in enumerate(images_urls):
         pdf.add_page()
-        pdf.image(page, w=w, h=h)
+        pdf.image(image_url, w=w, h=h, type=extension)
 
-        for link in meta[i].get('links'):
+        for link in metadata[i].get('links'):
             x = link['left']
             y = h - link['top']
 
             pdf.link(x=x, y=y, w=link['width'], h=link['height'], link=link['url'])
     
-    pdf.output(pdfFileName, 'F')
-
-def _cleanup(pages):
-
-    for file in pages:
-        os.remove(file)
+    pdf.output(pdf_file_name, 'F')
 
 
 def main():
@@ -68,14 +57,12 @@ def main():
     cache_date = args.cache_date
 
     IMAGE_URL = "https://ssr.resume.tools/to-image/ssid-{0}-{1}.{2}?cache={3}&size={4}"
-    METADATA_URL = f"https://ssr.resume.tools/meta/ssid-{resume_id}?cache={cache_date}"
-    PDF_FILE_NAME = f"{resume_id}.pdf"
+    METADATA_URL = "https://ssr.resume.tools/meta/ssid-{0}?cache={1}"
 
-    meta = _get_metadata(METADATA_URL)
-    pages = _download_images(meta, resume_id, extension, cache_date, image_size, IMAGE_URL)
+    metadata = _get_resume_metadata(METADATA_URL, resume_id, cache_date)
+    images_urls = _format_images_urls(metadata, resume_id, extension, cache_date, image_size, IMAGE_URL)
 
-    _generate_pdf(meta, pages, PDF_FILE_NAME)
-    _cleanup(pages)
+    _generate_pdf(metadata, images_urls, resume_id, extension)
     
 
 if __name__ == '__main__':
