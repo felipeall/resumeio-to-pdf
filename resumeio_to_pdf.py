@@ -2,23 +2,26 @@ import argparse
 import json
 import logging
 import re
+from dataclasses import dataclass, field
 from datetime import datetime
 
 import requests
 from fpdf import FPDF
 
 
+@dataclass
 class ResumeioDownloader:
-    IMAGE_URL: str = (
-        "https://ssr.resume.tools/to-image/ssid-{0}-{1}.{2}?cache={3}&size={4}"
-    )
+    resume_id: str
+    extension: str = "png"
+    image_size: int = 1800
+    cache_date: str = datetime.utcnow().isoformat()[:-4] + "Z"
+
+    IMAGE_URL: str = "https://ssr.resume.tools/to-image/ssid-{0}-{1}.{2}?cache={3}&size={4}"
     METADATA_URL: str = "https://ssr.resume.tools/meta/ssid-{0}?cache={1}"
 
-    def __init__(self, resume_id: str) -> None:
-        self.resume_id: str = resume_id
-        self.extension: str = "png"
-        self.image_size: int = 1800
-        self.cache_date: str = datetime.utcnow().isoformat()[:-4] + "Z"
+    pdf_file_name: str = ""
+    metadata: list = field(default_factory=lambda: [])
+    images_urls: list = field(default_factory=lambda: [])
 
     def run(self) -> None:
         logging.info("")
@@ -34,40 +37,35 @@ class ResumeioDownloader:
         logging.info("Resume Metadata")
         logging.info("------------------------------------")
         logging.info("Getting resume metadata...")
-        metadata = self._get_resume_metadata()
-        logging.info(metadata)
+        self._get_resume_metadata()
+        logging.info(self.metadata)
         logging.info("------------------------------------")
         logging.info("")
 
         logging.info("Resume Images")
         logging.info("------------------------------------")
         logging.info("Parsing resume images...")
-        images_urls = self._format_images_urls(metadata)
-        logging.info(images_urls)
+        self._format_images_urls()
+        logging.info(self.images_urls)
         logging.info("------------------------------------")
         logging.info("")
 
         logging.info("Resume PDF")
         logging.info("------------------------------------")
         logging.info("Generating pdf file...")
-        pdf_file_name = self._generate_pdf(metadata, images_urls)
-        logging.info(f"PDF file saved as: {pdf_file_name}")
+        self._generate_pdf()
+        logging.info(f"PDF file saved as: {self.pdf_file_name}")
         logging.info("------------------------------------")
         logging.info("")
 
-    def _get_resume_metadata(self) -> list[dict]:
-        request = requests.get(
-            self.METADATA_URL.format(self.resume_id, self.cache_date)
-        )
+    def _get_resume_metadata(self):
+        request = requests.get(self.METADATA_URL.format(self.resume_id, self.cache_date))
         metadata = json.loads(request.text)
         metadata = metadata.get("pages")
+        self.metadata = metadata
 
-        return metadata
-
-    def _format_images_urls(self, metadata: list[dict]) -> list[str]:
-        images_urls = []
-
-        for page_id in range(1, 1 + len(metadata)):
+    def _format_images_urls(self):
+        for page_id in range(1, 1 + len(self.metadata)):
             download_url = self.IMAGE_URL.format(
                 self.resume_id,
                 page_id,
@@ -75,30 +73,26 @@ class ResumeioDownloader:
                 self.cache_date,
                 self.image_size,
             )
-            images_urls.append(download_url)
+            self.images_urls.append(download_url)
 
-        return images_urls
-
-    def _generate_pdf(self, metadata: list[dict], images_urls: list[str]) -> str:
-        pdf_file_name = f"{self.resume_id}.pdf"
-        w, h = metadata[0].get("viewport").values()
+    def _generate_pdf(self):
+        self.pdf_file_name = f"{self.resume_id}.pdf"
+        w, h = self.metadata[0].get("viewport").values()
 
         pdf = FPDF(format=(w, h))
         pdf.set_auto_page_break(0)
 
-        for i, image_url in enumerate(images_urls):
+        for i, image_url in enumerate(self.images_urls):
             pdf.add_page()
             pdf.image(image_url, w=w, h=h, type=self.extension)
 
-            for link in metadata[i].get("links"):
+            for link in self.metadata[i].get("links"):
                 x = link["left"]
                 y = h - link["top"]
 
                 pdf.link(x=x, y=y, w=link["width"], h=link["height"], link=link["url"])
 
-        pdf.output(name=pdf_file_name, dest="F")
-
-        return pdf_file_name
+        pdf.output(name=self.pdf_file_name, dest="F")
 
 
 class ResumeioParser(argparse.Action):
