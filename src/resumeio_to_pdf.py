@@ -4,6 +4,7 @@ import logging
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
 
 import requests
 from fpdf import FPDF
@@ -12,16 +13,16 @@ from fpdf import FPDF
 @dataclass
 class ResumeioDownloader:
     resume_id: str
+
     extension: str = "png"
     image_size: int = 1800
     cache_date: str = datetime.utcnow().isoformat()[:-4] + "Z"
 
-    IMAGE_URL: str = "https://ssr.resume.tools/to-image/ssid-{0}-{1}.{2}?cache={3}&size={4}"
-    METADATA_URL: str = "https://ssr.resume.tools/meta/ssid-{0}?cache={1}"
-
-    pdf_file_name: str = ""
     metadata: list = field(default_factory=lambda: [])
     images_urls: list = field(default_factory=lambda: [])
+
+    IMAGE_URL: str = "https://ssr.resume.tools/to-image/ssid-{0}-{1}.{2}?cache={3}&size={4}"
+    METADATA_URL: str = "https://ssr.resume.tools/meta/ssid-{0}?cache={1}"
 
     def run(self) -> None:
         logging.info("")
@@ -54,7 +55,7 @@ class ResumeioDownloader:
         logging.info("------------------------------------")
         logging.info("Generating pdf file...")
         self._generate_pdf()
-        logging.info(f"PDF file saved as: {self.pdf_file_name}")
+        logging.info(f"PDF file saved at: {self.pdf_file_path}")
         logging.info("------------------------------------")
         logging.info("")
 
@@ -76,7 +77,7 @@ class ResumeioDownloader:
             self.images_urls.append(download_url)
 
     def _generate_pdf(self):
-        self.pdf_file_name = f"{self.resume_id}.pdf"
+        self.pdf_file_path = Path(__file__).absolute().parent.parent / f"pdf/{self.resume_id}.pdf"
         w, h = self.metadata[0].get("viewport").values()
 
         pdf = FPDF(format=(w, h))
@@ -92,7 +93,7 @@ class ResumeioDownloader:
 
                 pdf.link(x=x, y=y, w=link["width"], h=link["height"], link=link["url"])
 
-        pdf.output(name=self.pdf_file_name, dest="F")
+        pdf.output(name=self.pdf_file_path, dest="F")
 
 
 class ResumeioParser(argparse.Action):
