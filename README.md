@@ -1,10 +1,11 @@
 # Resume.io to PDF
 
-Download your CV from [resume.io](https://resume.io) as a PDF file
+Download your Résumé/CV from [resume.io](https://resume.io) as a PDF file
 
 ## Pre-requisites
-1. A CV built in [resume.io](https://resume.io)
-2. A shareable link to the CV (e.g.: https://resume.io/r/VT0miU9jv)
+1. CV created in [resume.io](https://resume.io)
+2. Shareable link to the CV (e.g.: https://resume.io/r/VT0miU9jv)
+3. Python environment
 
 ## Setup
 ````
@@ -18,7 +19,7 @@ $ pip install -r requirements.txt
 ## Usage
 
 ````
-resumeio_to_pdf.py [resume_id | resume_url] [-q] [-h]
+python resumeio_to_pdf.py [resume_id | resume_url] [-q] [-h]
 ````
 
 - `resume_id` (string): The ID extracted from the shareable link (e.g.: VT0miU9jv)
@@ -29,9 +30,9 @@ resumeio_to_pdf.py [resume_id | resume_url] [-q] [-h]
 ## Examples
 
 ````
-resumeio_to_pdf.py -h
-resumeio_to_pdf.py VT0miU9jv
-resumeio_to_pdf.py VT0miU9jv -q
-resumeio_to_pdf.py https://resume.io/r/VT0miU9jv
-resumeio_to_pdf.py https://resume.io/r/VT0miU9jv -q
+python resumeio_to_pdf.py -h
+python resumeio_to_pdf.py VT0miU9jv
+python resumeio_to_pdf.py VT0miU9jv -q
+python resumeio_to_pdf.py https://resume.io/r/VT0miU9jv
+python resumeio_to_pdf.py https://resume.io/r/VT0miU9jv -q
 ````
