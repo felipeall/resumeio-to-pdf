@@ -5,15 +5,26 @@ Download your Résumé/CV from [resume.io](https://resume.io) as a PDF file
 ## Pre-requisites
 1. CV created in [resume.io](https://resume.io)
 2. Shareable link to the CV (e.g.: https://resume.io/r/VT0miU9jv)
-3. Python environment
+3. Poetry / Python Environment
 
 ## Setup
-````
+### Virtual Environment
+````bash
 $ git clone https://github.com/felipeall/resumeio-to-pdf.git
 Cloning into 'resumeio-to-pdf'...
 
 $ cd resumeio-to-pdf/
 $ pip install -r requirements.txt
+````
+
+### Poetry
+````bash
+$ git clone https://github.com/felipeall/resumeio-to-pdf.git
+Cloning into 'resumeio-to-pdf'...
+
+$ cd resumeio-to-pdf/
+$ poetry shell
+$ poetry install
 ````
 
 ## Usage
