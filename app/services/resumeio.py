@@ -67,7 +67,7 @@ class ResumeioDownloader:
         logging.info("------------------------------------")
         logging.info("Generating pdf file...")
         self._generate_pdf()
-        logging.info(f"PDF buffer loaded!")
+        logging.info("PDF buffer loaded!")
         logging.info("------------------------------------")
         logging.info("")
 
