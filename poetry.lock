@@ -154,9 +154,14 @@ description = "Simple PDF generation for Python"
 category = "main"
 optional = false
 python-versions = "*"
-files = [
-    {file = "fpdf-1.7.2.tar.gz", hash = "sha256:125840783289e7d12552b1e86ab692c37322e7a65b96a99e0ea86cca041b6779"},
-]
+files = []
+develop = false
+
+[package.source]
+type = "git"
+url = "https://github.com/reingart/pyfpdf.git"
+reference = "HEAD"
+resolved_reference = "cb3340806c140b6e63eb4ce9d6230be84fba456e"
 
 [[package]]
 name = "h11"
@@ -795,4 +800,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "217ab44f97d243f1e1e77780b8c350252fef5eae52529955eab6077d9188b06a"
+content-hash = "12cff66f7d5dc7a648beede26b530d718b3e0bcded6c3ca5b9195cdad1ba21c4"

@@ -11,7 +11,7 @@ templates = Jinja2Templates(directory="templates")
 
 @api_router.get("/download", response_class=HTMLResponse)
 def main(resume_id: str):
-    resumeio = ResumeioDownloader(resume_id=resume_id)
+    resumeio = ResumeioDownloader(resume_id=resume_id, image_size=3000, extension='jpg')
     return FileResponse(resumeio.run())
 
 
