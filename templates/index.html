@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+   </head>
+   <body>
+      <h1>Resume.io to PDF</h1>
+      <form method="get" id="myForm" action='/download{{ resume_id }}'>
+         <label for="resume_id">Enter a resume id to download:</label><br>
+         <input type="text" id="resume_id" name="resume_id">
+         <input class="submit" type="submit" value="Submit">
+      </form>
+   </body>
+</html>

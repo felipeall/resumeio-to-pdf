@@ -163,3 +163,4 @@ cython_debug/
 
 # PDF
 *.pdf
+.vercel

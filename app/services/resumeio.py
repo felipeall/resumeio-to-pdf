@@ -1,6 +1,6 @@
-import argparse
 import json
 import logging
+import os
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -24,7 +24,20 @@ class ResumeioDownloader:
     IMAGE_URL: str = "https://ssr.resume.tools/to-image/ssid-{0}-{1}.{2}?cache={3}&size={4}"
     METADATA_URL: str = "https://ssr.resume.tools/meta/ssid-{0}?cache={1}"
 
-    def run(self) -> None:
+    def __post_init__(self):
+        pattern_id = re.compile(r"^[a-zA-Z0-9]{9}$")
+        pattern_url = re.compile(r"(?<=resume.io/r/)([a-zA-Z0-9]){9}")
+
+        if pattern_id.search(self.resume_id):
+            pass
+
+        elif pattern_url.search(self.resume_id):
+            self.resume_id = pattern_url.search(self.resume_id).group(0)
+
+        else:
+            raise ValueError(f"`{self.resume_id}` is an invalid Resume ID format!")
+
+    def run(self) -> str:
         logging.info("")
         logging.info("Execution Parameters")
         logging.info("------------------------------------")
@@ -59,6 +72,8 @@ class ResumeioDownloader:
         logging.info("------------------------------------")
         logging.info("")
 
+        return self.pdf_file_path
+
     def _get_resume_metadata(self):
         request = requests.get(self.METADATA_URL.format(self.resume_id, self.cache_date))
         metadata = json.loads(request.text)
@@ -77,7 +92,7 @@ class ResumeioDownloader:
             self.images_urls.append(download_url)
 
     def _generate_pdf(self):
-        self.pdf_file_path = Path(__file__).absolute().parent.parent / f"pdf/{self.resume_id}.pdf"
+        self.pdf_file_path = str(Path().absolute() / f"pdf/{self.resume_id}.pdf")
         w, h = self.metadata[0].get("viewport").values()
 
         pdf = FPDF(format=(w, h))
@@ -94,43 +109,3 @@ class ResumeioDownloader:
                 pdf.link(x=x, y=y, w=link["width"], h=link["height"], link=link["url"])
 
         pdf.output(name=self.pdf_file_path, dest="F")
-
-
-class ResumeioParser(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None) -> None:
-        pattern_id = re.compile(r"^[a-zA-Z0-9]{9}$")
-        pattern_url = re.compile(r"(?<=resume.io/r/)([a-zA-Z0-9]){9}")
-
-        if pattern_id.search(values):
-            setattr(namespace, self.dest, values)
-
-        elif pattern_url.search(values):
-            setattr(namespace, self.dest, pattern_url.search(values).group(0))
-
-        else:
-            parser.error(f"`{values}` is an invalid Resume ID format!")
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("resume_id", nargs="?", action=ResumeioParser)
-    parser.add_argument("-q", "--quiet", action="store_true", help="enable quiet mode")
-    args = parser.parse_args()
-    resume_id = args.resume_id
-    quiet = args.quiet
-
-    if not quiet:
-        logging.basicConfig(
-            level=logging.INFO,
-            format="[%(asctime)s] %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-
-    logging.info("Starting execution...")
-    resumeio_downloader = ResumeioDownloader(resume_id)
-    resumeio_downloader.run()
-    logging.info("Finished execution!")
-
-
-if __name__ == "__main__":
-    main()
