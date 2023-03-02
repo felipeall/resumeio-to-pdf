@@ -3,7 +3,6 @@ import logging
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
-from pathlib import Path
 
 import requests
 from fpdf import FPDF
@@ -36,7 +35,7 @@ class ResumeioDownloader:
         else:
             raise ValueError(f"`{self.resume_id}` is an invalid Resume ID format!")
 
-    def run(self) -> str:
+    def run(self) -> bytearray:
         logging.info("")
         logging.info("Execution Parameters")
         logging.info("------------------------------------")
@@ -67,11 +66,11 @@ class ResumeioDownloader:
         logging.info("------------------------------------")
         logging.info("Generating pdf file...")
         self._generate_pdf()
-        logging.info(f"PDF file saved at: {self.pdf_file_path}")
+        logging.info(f"PDF buffer loaded!")
         logging.info("------------------------------------")
         logging.info("")
 
-        return self.pdf_file_path
+        return self.buffer
 
     def _get_resume_metadata(self):
         request = requests.get(self.METADATA_URL.format(self.resume_id, self.cache_date))
@@ -91,7 +90,6 @@ class ResumeioDownloader:
             self.images_urls.append(download_url)
 
     def _generate_pdf(self):
-        self.pdf_file_path = str(Path().absolute() / f"pdf/{self.resume_id}.pdf")
         w, h = self.metadata[0].get("viewport").values()
 
         pdf = FPDF(format=(w, h))
@@ -107,4 +105,4 @@ class ResumeioDownloader:
 
                 pdf.link(x=x, y=y, w=link["width"], h=link["height"], link=link["url"])
 
-        pdf.output(name=self.pdf_file_path, dest="F")
+        self.buffer = pdf.output(dest="S")
