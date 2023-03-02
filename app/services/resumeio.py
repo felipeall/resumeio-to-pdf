@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 import requests
+from fastapi import HTTPException
 from fpdf import FPDF
 
 
@@ -33,7 +34,7 @@ class ResumeioDownloader:
             self.resume_id = pattern_url.search(self.resume_id).group(0)
 
         else:
-            raise ValueError(f"`{self.resume_id}` is an invalid Resume ID format!")
+            raise HTTPException(status_code=400, detail=f"Invalid resume id: {self.resume_id}")
 
     def run(self) -> bytearray:
         logging.info("")
