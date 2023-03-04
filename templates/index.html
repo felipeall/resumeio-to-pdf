@@ -1,15 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
    <head>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+      <title>Resume.io to PDF</title>
+
+      <style>
+         body {
+            font-family: "Inter", sans-serif;
+         }
+         .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3rem;
+         }
+
+         .title {
+            font-size: 3rem;
+         }
+
+         .resume_form {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            min-width: 30rem;
+            gap: 2rem;
+         }
+
+         .resume_id {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 4px;
+            border: 1px solid #666666;
+            font-family: "Inter", sans-serif;
+            font-size: 1rem;
+         }
+
+         .btn {
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            border: none;
+            font-size: 1rem;
+            font-family: "Inter", sans-serif;
+            background-color: #1c1c1c;
+            color: #ffffff;
+            cursor: pointer;
+         }
+
+      </style>
    </head>
    <body>
-      <h1>Resume.io to PDF</h1>
-      <form method="get" id="myForm" action='/download{{ resume_id }}'>
-         <label for="resume_id">Enter a resume id to download:</label><br>
-         <input type="text" id="resume_id" name="resume_id">
-         <input class="submit" type="submit" value="Download">
-      </form>
+      <div class="container">
+          <h1 class="title">Resume.io to PDF</h1>
+         <form method="get" class="resume_form" action='/download{{ resume_id }}'>
+            <input type="text" class="resume_id" name="resume_id" placeholder="Enter a resume ID or URL to download" aria-label="Id" required="true">
+            <button class="btn" type="submit">Download</button>
+         </form>
+      </div>
    </body>
 </html>
