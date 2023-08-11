@@ -18,6 +18,9 @@ $ git clone https://github.com/felipeall/resumeio-to-pdf.git
 # Go to the project's root folder
 $ cd resumeio-to-pdf
 
+# (optional) Append the current directory to PYTHONPATH
+$ export PYTHONPATH=$PYTHONPATH:$(pwd)
+
 # Instantiate a Poetry virtual env
 $ poetry shell
 

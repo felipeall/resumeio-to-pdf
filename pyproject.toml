@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "resumeio-to-pdf"
 version = "0.1.0"
-description = "Download your CV from resume.io as a PDF file"
+description = "Download your resume from resume.io as a PDF file"
 authors = ["Felipe Allegretti <felipe@allegretti.me>"]
 readme = "README.md"
 license = "LICENSE.md"
