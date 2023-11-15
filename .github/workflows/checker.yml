@@ -11,15 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-      - name: black
+      - name: ruff
         run: |
-          pip install black
-          black --check --verbose .
-      - name: isort
-        run: |
-          pip install isort
-          isort --check --verbose .
-      - name: pflake8
-        run: |
-          pip install pyproject-flake8
-          pflake8 --verbose .
+          pip install ruff
+          ruff check --verbose
