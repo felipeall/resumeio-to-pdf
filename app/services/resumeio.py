@@ -1,108 +1,133 @@
+import io
 import json
-import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 
+import pytesseract
 import requests
 from fastapi import HTTPException
-from fpdf import FPDF
+from PIL import Image
+from pypdf import PdfReader, PdfWriter
+from pypdf.generic import AnnotationBuilder
 
 
 @dataclass
 class ResumeioDownloader:
     """
-    A utility class to download and generate PDF from resume.io URLs.
+    Class to download a resume from resume.io and convert it to a PDF.
 
     Parameters
     ----------
     resume_id : str
         ID or URL of the resume to download.
     extension : str, optional
-        The format of images. Default is 'png'.
+        Image extension to download, by default "jpg".
     image_size : int, optional
-        The size of the images. Default is 1800.
-    cache_date : str
-        The timestamp of the cache. Default is the current UTC time.
-    images_urls : list
-        List to store formatted image URLs. Default is an empty list.
+        Size of the images to download, by default 3000.
     """
-
     resume_id: str
-
-    extension: str = "png"
-    image_size: int = 1800
-    cache_date: str = datetime.utcnow().isoformat()[:-4] + "Z"
-
-    images_urls: list = field(default_factory=lambda: [])
-
-    IMAGE_URL: str = (
+    extension: str = "jpg"
+    image_size: int = 3000
+    METADATA_URL: str = "https://ssr.resume.tools/meta/ssid-{resume_id}?cache={cache_date}"
+    IMAGES_URL: str = (
         "https://ssr.resume.tools/to-image/ssid-{resume_id}-{page_id}.{extension}?cache={cache_date}&size={image_size}"
     )
-    METADATA_URL: str = "https://ssr.resume.tools/meta/ssid-{resume_id}?cache={cache_date}"
 
     def __post_init__(self) -> None:
-        """Post initialization to validate and format resume_id."""
-        pattern_id = re.compile(r"^[a-zA-Z0-9]{9}$")
-        pattern_url = re.compile(r"(?<=resume.io/r/)([a-zA-Z0-9]){9}")
+        """Set the cache date to the current time."""
+        self.cache_date = datetime.utcnow().isoformat()[:-4] + "Z"
 
-        if pattern_id.search(self.resume_id):
-            pass
-
-        elif pattern_url.search(self.resume_id):
-            self.resume_id = pattern_url.search(self.resume_id).group(0)
-
-        else:
-            raise HTTPException(status_code=400, detail=f"Invalid resume id: {self.resume_id}")
-
-    def run(self) -> bytearray:
+    def generate_pdf(self) -> bytes:
         """
-        Main method to download and generate PDF from resume.io.
+        Generate a PDF from the resume.io resume.
 
         Returns
         -------
-        bytearray
-            The generated PDF content.
+        bytes
+            PDF representation of the resume.
         """
-        self._get_resume_metadata()
-        self._format_images_urls()
-        self._generate_pdf()
+        self.__get_resume_metadata()
+        images = self.__download_images()
+        pdf = PdfWriter()
+        metadata_w, metadata_h = self.metadata[0].get("viewport").values()
 
-        return self.buffer
+        for i, image in enumerate(images):
+            page_pdf = pytesseract.image_to_pdf_or_hocr(Image.open(image), extension="pdf")
+            page = PdfReader(io.BytesIO(page_pdf)).pages[0]
+            page_scale = max(page.mediabox.height / metadata_h, page.mediabox.width / metadata_w)
+            pdf.add_page(page)
 
-    def _get_resume_metadata(self) -> None:
-        """Fetch and store metadata of the resume."""
-        request = requests.get(self.METADATA_URL.format(resume_id=self.resume_id, cache_date=self.cache_date))
-        metadata = json.loads(request.text)
-        metadata = metadata.get("pages")
-        self.metadata = metadata
+            for link in self.metadata[i].get("links"):
+                link_url = link.pop("url")
+                link.update((k, v * page_scale) for k, v in link.items())
+                x, y, w, h = link.values()
 
-    def _format_images_urls(self) -> None:
-        """Format and store image download URLs for each page of the resume."""
+                annotation = AnnotationBuilder.link(rect=(x, y, x + w, y + h), url=link_url)
+                pdf.add_annotation(page_number=i, annotation=annotation)
+
+        with io.BytesIO() as file:
+            pdf.write(file)
+            return file.getvalue()
+
+    def __get_resume_metadata(self) -> None:
+        """Download the metadata for the resume."""
+        response = requests.get(self.METADATA_URL.format(resume_id=self.resume_id, cache_date=self.cache_date))
+        self.__raise_for_status(response)
+        content = json.loads(response.text)
+        self.metadata = content.get("pages")
+
+    def __download_images(self) -> list[io.BytesIO]:
+        """Download the images for the resume.
+
+        Returns
+        -------
+        list[io.BytesIO]
+            List of image files.
+        """
+        images = []
         for page_id in range(1, 1 + len(self.metadata)):
-            download_url = self.IMAGE_URL.format(
+            download_url = self.IMAGES_URL.format(
                 resume_id=self.resume_id,
                 page_id=page_id,
                 extension=self.extension,
                 cache_date=self.cache_date,
                 image_size=self.image_size,
             )
-            self.images_urls.append(download_url)
+            response = requests.get(download_url)
+            images.append(io.BytesIO(response.content))
 
-    def _generate_pdf(self) -> None:
-        """Generate a PDF using the FPDF library from fetched images and metadata."""
-        w, h = self.metadata[0].get("viewport").values()
+        return images
 
-        pdf = FPDF(format=(w, h))
-        pdf.set_auto_page_break(0)
+    def __download_image_from_url(self, url) -> io.BytesIO:
+        """Download an image from a URL.
 
-        for i, image_url in enumerate(self.images_urls):
-            pdf.add_page()
-            pdf.image(image_url, w=w, h=h, type=self.extension)
+        Parameters
+        ----------
+        url : str
+            URL of the image to download.
 
-            for link in self.metadata[i].get("links"):
-                x = link["left"]
-                y = h - link["top"]
+        Returns
+        -------
+        io.BytesIO
+            Image file.
+        """
+        response = requests.get(url)
+        self.__raise_for_status(response)
+        return io.BytesIO(response.content)
 
-                pdf.link(x=x, y=y, w=link["width"], h=link["height"], link=link["url"])
+    @staticmethod
+    def __raise_for_status(response) -> None:
+        """Raise an exception if the response status code is not 200.
 
-        self.buffer = pdf.output(dest="S")
+        Parameters
+        ----------
+        response : requests.Response
+            Response object.
+
+        Raises
+        ------
+        HTTPException
+            If the response status code is not 200.
+        """
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)

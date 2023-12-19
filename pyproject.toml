@@ -1,32 +1,38 @@
 [tool.poetry]
 name = "resumeio-to-pdf"
-version = "0.1.0"
+version = "1.0.0"
 description = "Download your resume from resume.io as a PDF file"
 authors = ["Felipe Allegretti <felipe@allegretti.me>"]
 readme = "README.md"
 license = "LICENSE.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-requests = "2.28.1"
-fastapi = "0.92.0"
-uvicorn = {extras = ["standard"], version = "0.20.0"}
+python = "^3.8"
+requests = "2.31.0"
+fastapi = "0.105.0"
+uvicorn = {extras = ["standard"], version = "0.24.0.post1"}
 python-multipart = "0.0.6"
 jinja2 = "3.1.2"
-fpdf = {git = "https://github.com/reingart/pyfpdf.git", rev = "cb33408"}
+pytesseract = "0.3.10"
+pypdf = "3.17.3"
 
 [tool.poetry.group.dev.dependencies]
 black = "23.1.0"
-isort = "5.12.0"
-pyproject-flake8 = "6.0.0.post1"
+ruff = "0.1.8"
 
 [tool.black]
 line-length = 120
 verbose = true
 preview = true
 
-[tool.isort]
-profile = "black"
-
-[tool.flake8]
-max-line-length = 120
+[tool.ruff]
+line-length = 120
+select = [
+    "F",  # pyflakes
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "I",  # isort
+    "N",  # pep8-naming
+    "COM",  # flake8-commas
+    "Q",  # flake8-quotes
+]

@@ -2,9 +2,7 @@
 
 Download your resume from [resume.io](https://resume.io) as a PDF file
 
-> [resumeio-to-pdf.vercel.app](https://resumeio-to-pdf.vercel.app/)
-
-<div align="center"><a href="https://resumeio-to-pdf.vercel.app/"><img src="https://user-images.githubusercontent.com/20917430/222932579-3cb4e5fe-9b9b-4a77-baf4-69e09ddc06d0.png" width="700" /></a></div>
+<div align="center"><a href="https://resumeio-to-pdf.fly.dev/"><img src="https://user-images.githubusercontent.com/20917430/222932579-3cb4e5fe-9b9b-4a77-baf4-69e09ddc06d0.png" width="700" /></a></div>
 
 ### Usage
 ```bash
