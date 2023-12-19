@@ -33,7 +33,7 @@
             gap: 2rem;
          }
 
-         .resume_id {
+         .resume {
             width: 100%;
             padding: 1rem;
             border-radius: 4px;
@@ -58,8 +58,8 @@
    <body>
       <div class="container">
           <h1 class="title">Resume.io to PDF</h1>
-         <form method="get" class="resume_form" action='/download{{ resume_id }}'>
-            <input type="text" class="resume_id" name="resume_id" placeholder="Enter a resume ID or URL to download" aria-label="Id" required="true">
+         <form method="get" class="resume_form" action='/download{{ resume }}'>
+            <input type="text" class="resume" name="resume" placeholder="Enter your resume ID or URL to download" aria-label="Id" required="true">
             <button class="btn" type="submit">Download</button>
          </form>
       </div>
