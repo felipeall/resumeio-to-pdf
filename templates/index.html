@@ -1,49 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
-      <title>Resume.io to PDF</title>
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <title>Resume.io to PDF</title>
 
-      <style>
-         body {
+    <style>
+        body {
             font-family: "Inter", sans-serif;
-         }
-         .container {
+        }
+
+        .container {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 3rem;
-         }
+        }
 
-         .title {
+        .title {
             font-size: 3rem;
-         }
+        }
 
-         .resume_form {
+        .resume_form {
             display: flex;
             align-items: center;
             flex-direction: column;
             min-width: 30rem;
             gap: 2rem;
-         }
+        }
 
-         .resume {
+        .resume {
             width: 100%;
             padding: 1rem;
             border-radius: 4px;
             border: 1px solid #666666;
             font-family: "Inter", sans-serif;
             font-size: 1rem;
-         }
+        }
 
-         .btn {
-            padding: 1rem 2rem;
+        .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             border-radius: 4px;
             border: none;
             font-size: 1rem;
@@ -51,17 +54,70 @@
             background-color: #1c1c1c;
             color: #ffffff;
             cursor: pointer;
-         }
+            width: 12rem;
+            height: 3.5rem;
+        }
 
-      </style>
-   </head>
-   <body>
-      <div class="container">
-          <h1 class="title">Resume.io to PDF</h1>
-         <form method="get" class="resume_form" action='/download{{ resume }}'>
-            <input type="text" class="resume" name="resume" placeholder="Enter your resume ID or URL to download" aria-label="Id" required="true">
-            <button class="btn" type="submit">Download</button>
-         </form>
-      </div>
-   </body>
+        #loader {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="title">Resume.io to PDF</h1>
+    <form method="get" class="resume_form" action='/download{{ resume }}'>
+        <input type="text" class="resume" name="resume" placeholder="Enter your resume ID or URL to download"
+               aria-label="Id" required="true">
+        <button id="submit-btn" class="btn" type="submit"><span id="submit-text">Download</span>
+            <svg id="loader" width="23" height="23" stroke="#fff" viewBox="0 0 24 24"
+                 xmlns="http://www.w3.org/2000/svg">
+                <style>.spinner_V8m1 {
+                    transform-origin: center;
+                    animation: spinner_zKoa 2s linear infinite
+                }
+
+                .spinner_V8m1 circle {
+                    stroke-linecap: round;
+                    animation: spinner_YpZS 1.5s ease-in-out infinite
+                }
+
+                @keyframes spinner_zKoa {
+                    100% {
+                        transform: rotate(360deg)
+                    }
+                }
+
+                @keyframes spinner_YpZS {
+                    0% {
+                        stroke-dasharray: 0 150;
+                        stroke-dashoffset: 0
+                    }
+                    47.5% {
+                        stroke-dasharray: 42 150;
+                        stroke-dashoffset: -16
+                    }
+                    95%, 100% {
+                        stroke-dasharray: 42 150;
+                        stroke-dashoffset: -59
+                    }
+                }</style>
+                <g class="spinner_V8m1">
+                    <circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle>
+                </g>
+            </svg>
+        </button>
+    </form>
+</div>
+
+<script>
+    document.querySelector('.resume_form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        document.getElementById('submit-text').style.display = 'none';
+        document.getElementById('loader').style.display = 'block';
+        this.submit();
+    });
+</script>
+</body>
 </html>
