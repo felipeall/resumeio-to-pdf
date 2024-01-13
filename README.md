@@ -38,3 +38,14 @@ $ poetry install
 $ python app/main.py
 ````
 The application will be running in: [http://localhost:8000/](http://localhost:8000/)
+
+
+### Disclaimer
+
+Please be advised that this application is designed for preview purposes only. 
+
+By utilizing this tool, you explicitly agree to adhere to all applicable laws and regulations governing the use of such services. 
+The creators of this application absolve themselves of any responsibility for potential damages or harm resulting from its utilization.
+
+It is essential to visit the pricing page on Resume.io to explore fair and affordable options for accessing the resume downloading service directly through the official channels provided by Resume.io. 
+The creators emphasize the importance of supporting the platform by subscribing to their services and discourage the use of this application as a substitute for legitimate and paid access.
