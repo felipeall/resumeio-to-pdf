@@ -115,8 +115,7 @@ class ResumeioDownloader:
         self.__raise_for_status(response)
         return io.BytesIO(response.content)
 
-    @staticmethod
-    def __raise_for_status(response) -> None:
+    def __raise_for_status(self, response) -> None:
         """Raise an exception if the response status code is not 200.
 
         Parameters
@@ -130,4 +129,4 @@ class ResumeioDownloader:
             If the response status code is not 200.
         """
         if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail=response.text)
+            raise HTTPException(status_code=response.status_code, detail=f"Unable to download resume {self.resume_id}")
