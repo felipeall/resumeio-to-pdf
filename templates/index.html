@@ -62,11 +62,18 @@
             display: none;
         }
 
+        .github-button {
+            position: absolute;
+            top: 5%;
+            right: 1%;
+        }
+
     </style>
 </head>
 <body>
 <div class="container">
     <h1 class="title">Resume.io to PDF</h1>
+    <iframe class="github-button" src="https://ghbtns.com/github-btn.html?user=felipeall&repo=resumeio-to-pdf&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
     <form method="get" class="resume_form" action='/download{{ resume }}'>
         <input type="text" class="resume" name="resume" placeholder="Enter your resume ID or URL to download"
                aria-label="Id" required="true">
