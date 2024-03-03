@@ -14,7 +14,8 @@ Go to https://resume.io/api/app/resumes
 You will see a list of your resumes. Find the one you want to download and get the `renderingToken` from 
 the payload. Example:
 
-![image](https://github.com/felipeall/resumeio-to-pdf/assets/20917430/54fb20b3-2dc1-45ca-860c-8eadac779799)
+<img src="https://github.com/felipeall/resumeio-to-pdf/assets/20917430/99cdc690-9c38-4f5f-af4e-2c75e9c9575e" width="500" />
+
 
 
 ### Usage
