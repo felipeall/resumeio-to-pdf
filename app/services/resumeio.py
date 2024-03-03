@@ -28,9 +28,9 @@ class ResumeioDownloader:
     resume_id: str
     extension: str = "jpg"
     image_size: int = 3000
-    METADATA_URL: str = "https://ssr.resume.tools/meta/ssid-{resume_id}?cache={cache_date}"
+    METADATA_URL: str = "https://ssr.resume.tools/meta/{resume_id}?cache={cache_date}"
     IMAGES_URL: str = (
-        "https://ssr.resume.tools/to-image/ssid-{resume_id}-{page_id}.{extension}?cache={cache_date}&size={image_size}"
+        "https://ssr.resume.tools/to-image/{resume_id}-{page_id}.{extension}?cache={cache_date}&size={image_size}"
     )
 
     def __post_init__(self) -> None:

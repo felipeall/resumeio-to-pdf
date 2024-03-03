@@ -70,7 +70,7 @@ def parse_resume_id(resume_input: str) -> str:
         The resume ID.
 
     """
-    match = re.search(r"^(.+resume\.io/r/)?(?P<id>[a-zA-Z0-9]{9})$", resume_input)
+    match = re.search(r"^(.+resume\.io/r/)?(?P<id>[a-zA-Z0-9]+)$", resume_input)
     if not match:
         raise HTTPException(status_code=400, detail=f"Invalid resumeio.io ID or URL: {resume_input}")
 

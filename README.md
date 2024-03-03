@@ -1,17 +1,17 @@
 # Resume.io to PDF
 
 Download your resume from [resume.io](https://resume.io) as a PDF file. Open the application, enter your resume 
-`secureId` and click the download button. It will automatically download your resume as image files, merge and 
+`renderingToken` and click the download button. It will automatically download your resume as image files, merge and 
 convert them to a PDF file, and run OCR to extract the text and make it searchable.
 
 <div align="center"><a href="https://resumeio-to-pdf.fly.dev/"><img src="https://github.com/felipeall/resumeio-to-pdf/assets/20917430/a0479dc5-ceb8-4532-826d-eae98649a089" width="700" /></a></div>
 
 
-#### How to find your secureId
+#### How to find your renderingToken
 
 Go to https://resume.io/api/app/resumes
 
-You will see a list of your resumes. Find the one you want to download and get the `secureId` from 
+You will see a list of your resumes. Find the one you want to download and get the `renderingToken` from 
 the payload. Example:
 
 ![image](https://github.com/felipeall/resumeio-to-pdf/assets/20917430/54fb20b3-2dc1-45ca-860c-8eadac779799)
