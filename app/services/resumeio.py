@@ -71,7 +71,9 @@ class ResumeioDownloader:
 
     def __get_resume_metadata(self) -> None:
         """Download the metadata for the resume."""
-        response = requests.get(self.METADATA_URL.format(rendering_token=self.rendering_token, cache_date=self.cache_date))
+        response = requests.get(
+            self.METADATA_URL.format(rendering_token=self.rendering_token, cache_date=self.cache_date),
+        )
         self.__raise_for_status(response)
         content = json.loads(response.text)
         self.metadata = content.get("pages")
@@ -129,4 +131,7 @@ class ResumeioDownloader:
             If the response status code is not 200.
         """
         if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail=f"Unable to download resume {self.rendering_token}")
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=f"Unable to download resume {self.rendering_token}",
+            )
