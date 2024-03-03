@@ -11,14 +11,14 @@ templates = Jinja2Templates(directory="templates")
 
 
 @api_router.get("/download", response_class=HTMLResponse)
-def download_resume(resume: str, image_size: int = 3000, extension: str = "jpg"):
+def download_resume(rendering_token: str, image_size: int = 3000, extension: str = "jpg"):
     """
     Download a resume from resume.io and return it as a PDF.
 
     Parameters
     ----------
-    resume : str
-        ID or URL of the resume to download.
+    rendering_token : str
+        ID of the resume to download.
     image_size : int, optional
         Size of the images to download, by default 3000.
     extension : str, optional
@@ -29,11 +29,11 @@ def download_resume(resume: str, image_size: int = 3000, extension: str = "jpg")
     fastapi.responses.Response
         A PDF representation of the resume with appropriate headers for inline display.
     """
-    resume_id = parse_resume_id(resume)
-    resumeio = ResumeioDownloader(resume_id=resume_id, image_size=image_size, extension=extension)
+    rendering_token = parse_rendering_token(rendering_token)
+    resumeio = ResumeioDownloader(rendering_token=rendering_token, image_size=image_size, extension=extension)
     buffer = resumeio.generate_pdf()
     return Response(
-        buffer, headers={"Content-Disposition": f'inline; filename="{resume_id}.pdf"'}, media_type="application/pdf",
+        buffer, headers={"Content-Disposition": f'inline; filename="{rendering_token}.pdf"'}, media_type="application/pdf",
     )
 
 
@@ -55,23 +55,23 @@ def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-def parse_resume_id(resume_input: str) -> str:
+def parse_rendering_token(rendering_token: str) -> str:
     """
     Parse a resume.io ID or URL.
 
     Parameters
     ----------
-    resume_input : str
-        ID or URL of the resume to parse.
+    rendering_token : str
+        ID of the resume to parse.
 
     Returns
     -------
     str
-        The resume ID.
+        The resume's rendering token.
 
     """
-    match = re.search(r"^(.+resume\.io/r/)?(?P<id>[a-zA-Z0-9]+)$", resume_input)
+    match = re.search(r"^(?P<id>[a-zA-Z0-9]{24})$", rendering_token)
     if not match:
-        raise HTTPException(status_code=400, detail=f"Invalid resumeio.io ID or URL: {resume_input}")
+        raise HTTPException(status_code=400, detail=f"Invalid resumeio.io ID or URL: {rendering_token}")
 
     return match.groupdict().get("id")

@@ -18,19 +18,19 @@ class ResumeioDownloader:
 
     Parameters
     ----------
-    resume_id : str
-        ID or URL of the resume to download.
+    rendering_token : str
+        ID of the resume to download.
     extension : str, optional
         Image extension to download, by default "jpg".
     image_size : int, optional
         Size of the images to download, by default 3000.
     """
-    resume_id: str
+    rendering_token: str
     extension: str = "jpg"
     image_size: int = 3000
-    METADATA_URL: str = "https://ssr.resume.tools/meta/{resume_id}?cache={cache_date}"
+    METADATA_URL: str = "https://ssr.resume.tools/meta/{rendering_token}?cache={cache_date}"
     IMAGES_URL: str = (
-        "https://ssr.resume.tools/to-image/{resume_id}-{page_id}.{extension}?cache={cache_date}&size={image_size}"
+        "https://ssr.resume.tools/to-image/{rendering_token}-{page_id}.{extension}?cache={cache_date}&size={image_size}"
     )
 
     def __post_init__(self) -> None:
@@ -71,7 +71,7 @@ class ResumeioDownloader:
 
     def __get_resume_metadata(self) -> None:
         """Download the metadata for the resume."""
-        response = requests.get(self.METADATA_URL.format(resume_id=self.resume_id, cache_date=self.cache_date))
+        response = requests.get(self.METADATA_URL.format(rendering_token=self.rendering_token, cache_date=self.cache_date))
         self.__raise_for_status(response)
         content = json.loads(response.text)
         self.metadata = content.get("pages")
@@ -87,7 +87,7 @@ class ResumeioDownloader:
         images = []
         for page_id in range(1, 1 + len(self.metadata)):
             image_url = self.IMAGES_URL.format(
-                resume_id=self.resume_id,
+                rendering_token=self.rendering_token,
                 page_id=page_id,
                 extension=self.extension,
                 cache_date=self.cache_date,
@@ -129,4 +129,4 @@ class ResumeioDownloader:
             If the response status code is not 200.
         """
         if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail=f"Unable to download resume {self.resume_id}")
+            raise HTTPException(status_code=response.status_code, detail=f"Unable to download resume {self.rendering_token}")
