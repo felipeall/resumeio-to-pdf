@@ -18,7 +18,7 @@ def download_resume(rendering_token: str, image_size: int = 3000, extension: str
     Parameters
     ----------
     rendering_token : str
-        ID of the resume to download.
+        Rendering Token of the resume to download.
     image_size : int, optional
         Size of the images to download, by default 3000.
     extension : str, optional
@@ -58,12 +58,12 @@ def index(request: Request):
 
 def parse_rendering_token(rendering_token: str) -> str:
     """
-    Parse a resume.io ID or URL.
+    Parse a resume.io Rendering Token.
 
     Parameters
     ----------
     rendering_token : str
-        ID of the resume to parse.
+        Rendering Token of the resume to parse.
 
     Returns
     -------
@@ -71,8 +71,8 @@ def parse_rendering_token(rendering_token: str) -> str:
         The resume's rendering token.
 
     """
-    match = re.search(r"^(?P<id>[a-zA-Z0-9]{24})$", rendering_token)
+    match = re.search(r"^(?P<rendering_token>[a-zA-Z0-9]{24})$", rendering_token)
     if not match:
-        raise HTTPException(status_code=400, detail=f"Invalid resumeio.io ID or URL: {rendering_token}")
+        raise HTTPException(status_code=400, detail=f"Invalid rendering token: {rendering_token}")
 
-    return match.groupdict().get("id")
+    return match.groupdict().get("rendering_token")

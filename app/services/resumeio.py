@@ -19,7 +19,7 @@ class ResumeioDownloader:
     Parameters
     ----------
     rendering_token : str
-        ID of the resume to download.
+        Rendering Token of the resume to download.
     extension : str, optional
         Image extension to download, by default "jpg".
     image_size : int, optional
@@ -133,5 +133,5 @@ class ResumeioDownloader:
         if response.status_code != 200:
             raise HTTPException(
                 status_code=response.status_code,
-                detail=f"Unable to download resume {self.rendering_token}",
+                detail=f"Unable to download resume (rendering token: {self.rendering_token})",
             )

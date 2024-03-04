@@ -75,11 +75,9 @@
     <h1 class="title">Resume.io to PDF</h1>
     <iframe class="github-button" src="https://ghbtns.com/github-btn.html?user=felipeall&repo=resumeio-to-pdf&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
     <form method="get" class="resume_form" action='/download{{ rendering_token }}'>
-        <input type="text" class="resume" name="rendering_token" placeholder="Enter your resume Rendering Token to download"
-               aria-label="Id" required="true">
+        <input type="text" class="resume" name="rendering_token" placeholder="Enter your resume Rendering Token to download" aria-label="Id" required="true" minlength="24" maxlength="24">
         <button id="submit-btn" class="btn" type="submit"><span id="submit-text">Download</span>
-            <svg id="loader" width="23" height="23" stroke="#fff" viewBox="0 0 24 24"
-                 xmlns="http://www.w3.org/2000/svg">
+            <svg id="loader" width="23" height="23" stroke="#fff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <style>.spinner_V8m1 {
                     transform-origin: center;
                     animation: spinner_zKoa 2s linear infinite
