@@ -1,4 +1,4 @@
-name: Formatting Checker
+name: Ruff
 on:
   push:
     branches: [ main ]
