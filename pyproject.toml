@@ -1,25 +1,3 @@
-[tool.poetry]
-name = "resumeio-to-pdf"
-version = "1.0.0"
-description = "Download your resume from resume.io as a PDF file"
-authors = ["Felipe Allegretti <felipe@allegretti.me>"]
-readme = "README.md"
-license = "LICENSE.md"
-
-[tool.poetry.dependencies]
-python = "^3.8"
-requests = "2.31.0"
-fastapi = "0.105.0"
-uvicorn = {extras = ["standard"], version = "0.24.0.post1"}
-python-multipart = "0.0.6"
-jinja2 = "3.1.2"
-pytesseract = "0.3.10"
-pypdf = "3.17.3"
-
-[tool.poetry.group.dev.dependencies]
-black = "23.1.0"
-ruff = "0.1.8"
-
 [tool.black]
 line-length = 120
 verbose = true
@@ -27,7 +5,7 @@ preview = true
 
 [tool.ruff]
 line-length = 120
-select = [
+lint.select = [
     "F",  # pyflakes
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
