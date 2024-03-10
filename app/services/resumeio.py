@@ -10,6 +10,8 @@ from PIL import Image
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import AnnotationBuilder
 
+from app.schemas.resumeio import Extension
+
 
 @dataclass
 class ResumeioDownloader:
@@ -21,12 +23,13 @@ class ResumeioDownloader:
     rendering_token : str
         Rendering Token of the resume to download.
     extension : str, optional
-        Image extension to download, by default "jpg".
+        Image extension to download, by default "jpeg".
     image_size : int, optional
         Size of the images to download, by default 3000.
     """
+
     rendering_token: str
-    extension: str = "jpg"
+    extension: Extension = Extension.jpeg
     image_size: int = 3000
     METADATA_URL: str = "https://ssr.resume.tools/meta/{rendering_token}?cache={cache_date}"
     IMAGES_URL: str = (

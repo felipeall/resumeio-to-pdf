@@ -14,12 +14,22 @@
         }
 
         .container {
+            position: relative;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 3rem;
+        }
+
+        .links {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         .title {
@@ -62,52 +72,81 @@
             display: none;
         }
 
-        .github-button {
-            position: absolute;
-            top: 5%;
-            right: 1%;
+        .error {
+            margin-right: auto;
+            display: none;
+            color: red;
+            font-size: 0.8rem;
+        }
+
+        .error-border {
+            border: 1px solid red;
+        }
+
+        .spinner_V8m1 {
+            transform-origin: center;
+            animation: spinner_zKoa 2s linear infinite
+        }
+
+        .spinner_V8m1 circle {
+            stroke-linecap: round;
+            animation: spinner_YpZS 1.5s ease-in-out infinite
+        }
+
+        @keyframes spinner_zKoa {
+            100% {
+                transform: rotate(360deg)
+            }
+        }
+
+        @keyframes spinner_YpZS {
+            0% {
+                stroke-dasharray: 0 150;
+                stroke-dashoffset: 0
+            }
+            47.5% {
+                stroke-dasharray: 42 150;
+                stroke-dashoffset: -16
+            }
+            95%, 100% {
+                stroke-dasharray: 42 150;
+                stroke-dashoffset: -59
+            }
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .shake {
+            animation: shake 0.1s;
+            animation-iteration-count: 1;
         }
 
     </style>
 </head>
 <body>
 <div class="container">
+    <div class="links">
+        <iframe  src="https://ghbtns.com/github-btn.html?user=felipeall&repo=resumeio-to-pdf&type=star&count=true&size=large" frameborder="0" scrolling="0" width="130" height="30" title="GitHub"></iframe>
+        <a href="https://www.buymeacoffee.com/felipeall" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important;width: 160px !important;" ></a>
+    </div>
     <h1 class="title">Resume.io to PDF</h1>
-    <iframe class="github-button" src="https://ghbtns.com/github-btn.html?user=felipeall&repo=resumeio-to-pdf&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
-    <form method="get" class="resume_form" action='/download{{ rendering_token }}'>
-        <input type="text" class="resume" name="rendering_token" placeholder="Enter your resume Rendering Token to download" aria-label="Id" required="true" minlength="24" maxlength="24">
+    <form method="post" class="resume_form" id="downloadForm">
+        <input type="text" class="resume" name="rendering_token" placeholder="Enter your resume `renderingToken'" aria-label="Id" maxlength="24">
+        <span class="error">Your resume `renderingToken` must be a 24-character alphanumeric string</span>
         <button id="submit-btn" class="btn" type="submit"><span id="submit-text">Download</span>
             <svg id="loader" width="23" height="23" stroke="#fff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <style>.spinner_V8m1 {
-                    transform-origin: center;
-                    animation: spinner_zKoa 2s linear infinite
-                }
-
-                .spinner_V8m1 circle {
-                    stroke-linecap: round;
-                    animation: spinner_YpZS 1.5s ease-in-out infinite
-                }
-
-                @keyframes spinner_zKoa {
-                    100% {
-                        transform: rotate(360deg)
-                    }
-                }
-
-                @keyframes spinner_YpZS {
-                    0% {
-                        stroke-dasharray: 0 150;
-                        stroke-dashoffset: 0
-                    }
-                    47.5% {
-                        stroke-dasharray: 42 150;
-                        stroke-dashoffset: -16
-                    }
-                    95%, 100% {
-                        stroke-dasharray: 42 150;
-                        stroke-dashoffset: -59
-                    }
-                }</style>
                 <g class="spinner_V8m1">
                     <circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle>
                 </g>
@@ -116,9 +155,38 @@
     </form>
 </div>
 
+
 <script>
-    document.querySelector('.resume_form').addEventListener('submit', function (event) {
-        event.preventDefault();
+    window.addEventListener('pageshow', function() {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('submit-text').style.display = 'block';
+    });
+
+    const downloadForm = document.getElementById("downloadForm");
+    const errorMessage = document.querySelector('.error');
+    const inputField = document.querySelector('.resume');
+
+    downloadForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const rendering_token = new FormData(downloadForm).get('rendering_token').toString();
+        const regex = /^[a-zA-Z0-9]{24}$/;
+
+        if (!regex.test(rendering_token)) {
+            errorMessage.style.display = 'block';
+            inputField.classList.add('error-border');
+            inputField.classList.remove('shake');
+
+            setTimeout(function() {
+                inputField.classList.add('shake');
+            }, 100);
+
+            return;
+        } else {
+            errorMessage.style.display = 'none';
+            inputField.classList.remove('error-border', 'shake');
+        }
+
+        downloadForm.action = '/download/' + rendering_token;
         document.getElementById('submit-text').style.display = 'none';
         document.getElementById('loader').style.display = 'block';
         this.submit();

@@ -7,54 +7,38 @@ Download your resume from [resume.io](https://resume.io) as a PDF file.
 
 Open the application, enter your resume `renderingToken` and click the download button. 
 It will automatically download your resume as image files, merge them, inject the hyperlinks,
-convert to a PDF file and run OCR to extract the text and make it searchable.
+convert to a PDF file and run OCR to extract the text.
 
-#### How to find your renderingToken
+### How to find your renderingToken
 
 Go to https://resume.io/api/app/resumes
 
 You will see a list of your resumes. Find the one you want to download and get the `renderingToken` from 
-the payload. Example:
+the payload.
 
-<img src="https://github.com/felipeall/resumeio-to-pdf/assets/20917430/99cdc690-9c38-4f5f-af4e-2c75e9c9575e" width="500" />
+### How to run the application
 
-
-
-### Usage
+Clone the repository
 ```bash
-# Clone the repository
-$ git clone https://github.com/felipeall/resumeio-to-pdf.git
-
-# Go to the project's root folder
-$ cd resumeio-to-pdf
+git clone https://github.com/felipeall/resumeio-to-pdf.git
+```
+    
+Go to the project's root folder
+```bash
+cd resumeio-to-pdf
 ```
 
-#### Running in Docker
+Build the image
 ```bash
-# Build the image
-$ docker build -t resumeio-to-pdf .
-
-# Run the container
-$ docker run -p 8000:8000 resumeio-to-pdf
+docker build -t resumeio-to-pdf .
 ```
 
-#### Running Locally
+Run the container
+```bash
+docker run -p 8000:8000 resumeio-to-pdf
+```
 
-````bash
-# (optional) Append the current directory to PYTHONPATH
-$ export PYTHONPATH=$PYTHONPATH:$(pwd)
-
-# Instantiate a Poetry virtual env
-$ poetry shell
-
-# Install the dependencies
-$ poetry install
-
-# Start the API server
-$ python app/main.py
-````
-The application will be running in: [http://localhost:8000/](http://localhost:8000/)
-
+Open your browser and access http://localhost:8000
 
 ### Disclaimer
 

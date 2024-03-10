@@ -1,17 +1,22 @@
-import re
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, Path, Query, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from app.schemas.resumeio import Extension
 from app.services.resumeio import ResumeioDownloader
 
-api_router = APIRouter()
+router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-@api_router.get("/download", response_class=HTMLResponse)
-def download_resume(rendering_token: str, image_size: int = 3000, extension: str = "jpg"):
+@router.post("/download/{rendering_token}")
+def download_resume(
+    rendering_token: Annotated[str, Path(min_length=24, max_length=24, pattern="^[a-zA-Z0-9]{24}$")],
+    image_size: Annotated[int, Query(gt=0)] = 3000,
+    extension: Annotated[Extension, Query(...)] = Extension.jpeg,
+):
     """
     Download a resume from resume.io and return it as a PDF.
 
@@ -29,16 +34,14 @@ def download_resume(rendering_token: str, image_size: int = 3000, extension: str
     fastapi.responses.Response
         A PDF representation of the resume with appropriate headers for inline display.
     """
-    rendering_token = parse_rendering_token(rendering_token)
     resumeio = ResumeioDownloader(rendering_token=rendering_token, image_size=image_size, extension=extension)
-    buffer = resumeio.generate_pdf()
     return Response(
-        buffer,
-        headers={"Content-Disposition": f'inline; filename="{rendering_token}.pdf"'}, media_type="application/pdf",
+        resumeio.generate_pdf(),
+        headers={"Content-Disposition": f'inline; filename="{rendering_token}.pdf"'},
     )
 
 
-@api_router.get("/", response_class=HTMLResponse, include_in_schema=False)
+@router.get("/", response_class=HTMLResponse, include_in_schema=False)
 def index(request: Request):
     """
     Render the main index page.
@@ -54,25 +57,3 @@ def index(request: Request):
         Rendered template of the main index page.
     """
     return templates.TemplateResponse("index.html", {"request": request})
-
-
-def parse_rendering_token(rendering_token: str) -> str:
-    """
-    Parse a resume.io Rendering Token.
-
-    Parameters
-    ----------
-    rendering_token : str
-        Rendering Token of the resume to parse.
-
-    Returns
-    -------
-    str
-        The resume's rendering token.
-
-    """
-    match = re.search(r"^(?P<rendering_token>[a-zA-Z0-9]{24})$", rendering_token)
-    if not match:
-        raise HTTPException(status_code=400, detail=f"Invalid rendering token: {rendering_token}")
-
-    return match.groupdict().get("rendering_token")
