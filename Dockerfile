@@ -15,6 +15,7 @@ ENV PYTHONPATH "${PYTHONPATH}:/app"
 
 # Install uv
 ADD --chmod=755 https://astral.sh/uv/install.sh /install.sh
+RUN chmod +x /install.sh
 RUN /install.sh && rm /install.sh
 
 # Install dependencies
