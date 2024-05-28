@@ -1,0 +1,9 @@
+version: '3'
+services:
+  resumeio-to-pdf:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: resumeio-to-pdf
+    ports:
+    - "8000:8000"
