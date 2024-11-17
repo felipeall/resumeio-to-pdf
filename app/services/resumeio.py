@@ -55,7 +55,7 @@ class ResumeioDownloader:
         metadata_w, metadata_h = self.metadata[0].get("viewport").values()
 
         for i, image in enumerate(images):
-            page_pdf = pytesseract.image_to_pdf_or_hocr(Image.open(image), extension="pdf")
+            page_pdf = pytesseract.image_to_pdf_or_hocr(Image.open(image), extension="pdf", config="--dpi 300")
             page = PdfReader(io.BytesIO(page_pdf)).pages[0]
             page_scale = max(page.mediabox.height / metadata_h, page.mediabox.width / metadata_w)
             pdf.add_page(page)
