@@ -10,7 +10,11 @@ convert to a PDF file and run OCR to extract the text.
 
 ### How to find your renderingToken
 
+For resume:
 Go to https://resume.io/api/app/resumes
+
+For cover letters:
+Go to https://resume.io/api/app/cover-letters/
 
 You will see a list of your resumes. Find the one you want to download and get the `renderingToken` from 
 the payload.
