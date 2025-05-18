@@ -74,11 +74,10 @@ class ResumeioDownloader:
 
     def __get_resume_metadata(self) -> None:
         """Download the metadata for the resume."""
-        response = requests.get(
+        response = self.__get(
             self.METADATA_URL.format(rendering_token=self.rendering_token, cache_date=self.cache_date),
         )
-        self.__raise_for_status(response)
-        content = json.loads(response.text)
+        content: dict[str, list] = json.loads(response.text)
         self.metadata = content.get("pages")
 
     def __download_images(self) -> list[io.BytesIO]:
@@ -98,34 +97,22 @@ class ResumeioDownloader:
                 cache_date=self.cache_date,
                 image_size=self.image_size,
             )
-            image = self.__download_image_from_url(image_url)
-            images.append(image)
+            response = self.__get(image_url)
+            images.append(io.BytesIO(response.content))
 
         return images
 
-    def __download_image_from_url(self, url) -> io.BytesIO:
-        """Download an image from a URL.
+    def __get(self, url: str) -> requests.Response:
+        """Get a response from a URL.
 
         Parameters
         ----------
         url : str
-            URL of the image to download.
+            URL to get.
 
         Returns
         -------
-        io.BytesIO
-            Image file.
-        """
-        response = requests.get(url)
-        self.__raise_for_status(response)
-        return io.BytesIO(response.content)
-
-    def __raise_for_status(self, response) -> None:
-        """Raise an exception if the response status code is not 200.
-
-        Parameters
-        ----------
-        response : requests.Response
+        requests.Response
             Response object.
 
         Raises
@@ -133,8 +120,17 @@ class ResumeioDownloader:
         HTTPException
             If the response status code is not 200.
         """
+        response = requests.get(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/136.0.0.0 Safari/537.36",
+            },
+        )
         if response.status_code != 200:
             raise HTTPException(
                 status_code=response.status_code,
                 detail=f"Unable to download resume (rendering token: {self.rendering_token})",
             )
+        return response
