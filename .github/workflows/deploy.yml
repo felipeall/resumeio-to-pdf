@@ -1,14 +1,14 @@
 name: Fly Deploy
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+
 jobs:
   deploy:
     name: Deploy app
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --remote-only
         env:
