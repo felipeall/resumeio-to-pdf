@@ -1,4 +1,4 @@
-FROM python:3.9-slim-bookworm
+FROM python:3.9.19-slim-bookworm   # lock to the tested 3.9.x patch for deterministic builds
 
 # Update, install tesseract, clean up
 RUN apt-get update  \
