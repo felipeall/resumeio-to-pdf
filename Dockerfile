@@ -1,4 +1,4 @@
-FROM python:3.9.16-slim-buster
+FROM python:3.9-slim-bookworm
 
 # Update, install tesseract, clean up
 RUN apt-get update  \
