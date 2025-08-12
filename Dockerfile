@@ -1,26 +1,32 @@
-FROM python:3.9.16-slim-buster
+FROM python:3.10-slim-bullseye
 
-# Update, install tesseract, clean up
-RUN apt-get update  \
+# Update apt sources, install Tesseract, and clean up
+RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    tesseract-ocr \
-    && apt clean \
+       tesseract-ocr \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONPATH "${PYTHONPATH}:/app"
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH="/app"
 
-# Install dependencies
+# Set working directory
 WORKDIR /app
+
+# Copy requirements first (for caching layers)
 COPY requirements.txt ./
+
+# Install Python dependencies using uv
 RUN --mount=from=ghcr.io/astral-sh/uv,source=/uv,target=/bin/uv \
     uv pip install --system --no-cache -r requirements.txt
 
-# Copy app files
+# Copy the rest of the application
 COPY . ./
 
-# Run app
+# Expose the application port
 EXPOSE 8000
-CMD [ "python", "app/main.py" ]
+
+# Run the main application
+CMD ["python", "app/main.py"]
