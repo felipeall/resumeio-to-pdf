@@ -1,4 +1,6 @@
-FROM python:3.9.16-slim-buster
+# Updated base image for compatibility
+# FROM python:3.9.16-slim-buster
+FROM python:3.11-slim-bullseye
 
 # Update, install tesseract, clean up
 RUN apt-get update  \
@@ -10,7 +12,9 @@ RUN apt-get update  \
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONPATH "${PYTHONPATH}:/app"
+# Fixed environment variable syntax
+# ENV PYTHONPATH "${PYTHONPATH}:/app"
+ENV PYTHONPATH=/app
 
 # Install dependencies
 WORKDIR /app

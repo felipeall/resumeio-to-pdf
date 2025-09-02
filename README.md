@@ -32,6 +32,8 @@ cd resumeio-to-pdf
 Build the image
 ```bash
 docker build -t resumeio-to-pdf .
+# OR
+DOCKER_BUILDKIT=1 docker buildx build --load -t resumeio-to-pdf .
 ```
 
 Run the container
