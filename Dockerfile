@@ -1,26 +1,28 @@
-FROM python:3.9.16-slim-buster
+FROM python:3.9-slim-bookworm
 
-# Update, install tesseract, clean up
-RUN apt-get update  \
+# Обновление пакетов, установка tesseract, очистка кешей
+RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    tesseract-ocr \
-    && apt clean \
+       tesseract-ocr \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set environment variables
+# Переменные окружения
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONPATH "${PYTHONPATH}:/app"
+ENV PYTHONPATH="${PYTHONPATH}:/app"
 
-# Install dependencies
+# Установка зависимостей
 WORKDIR /app
 COPY requirements.txt ./
 RUN --mount=from=ghcr.io/astral-sh/uv,source=/uv,target=/bin/uv \
     uv pip install --system --no-cache -r requirements.txt
 
-# Copy app files
+# Копирование файлов приложения
 COPY . ./
 
-# Run app
+# Открытый порт
 EXPOSE 8000
+
+# Запуск приложения
 CMD [ "python", "app/main.py" ]
