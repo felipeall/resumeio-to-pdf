@@ -1,14 +1,14 @@
 import io
 import json
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytesseract
 import requests
 from fastapi import HTTPException
 from PIL import Image
 from pypdf import PdfReader, PdfWriter
-from pypdf.generic import AnnotationBuilder
+from pypdf.annotations import Link
 
 from app.schemas.resumeio import Extension
 
@@ -22,7 +22,7 @@ class ResumeioDownloader:
     ----------
     rendering_token : str
         Rendering Token of the resume to download.
-    extension : str, optional
+    extension : Extension, optional
         Image extension to download, by default "jpeg".
     image_size : int, optional
         Size of the images to download, by default 3000.
@@ -38,7 +38,7 @@ class ResumeioDownloader:
 
     def __post_init__(self) -> None:
         """Set the cache date to the current time."""
-        self.cache_date = datetime.utcnow().isoformat()[:-4] + "Z"
+        self.cache_date = datetime.now(timezone.utc).isoformat()[:-10] + "Z"
 
     def generate_pdf(self) -> bytes:
         """
@@ -65,8 +65,8 @@ class ResumeioDownloader:
                 link.update((k, v * page_scale) for k, v in link.items())
                 x, y, w, h = link.values()
 
-                annotation = AnnotationBuilder.link(rect=(x, y, x + w, y + h), url=link_url)
-                pdf.add_annotation(page_number=i, annotation=annotation)
+                link_annotation = Link(rect=(x, y, x + w, y + h), url=link_url)
+                pdf.add_annotation(page_number=i, annotation=link_annotation)
 
         with io.BytesIO() as file:
             pdf.write(file)
@@ -93,7 +93,7 @@ class ResumeioDownloader:
             image_url = self.IMAGES_URL.format(
                 rendering_token=self.rendering_token,
                 page_id=page_id,
-                extension=self.extension,
+                extension=self.extension.value,
                 cache_date=self.cache_date,
                 image_size=self.image_size,
             )

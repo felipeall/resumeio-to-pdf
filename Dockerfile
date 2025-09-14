@@ -1,4 +1,4 @@
-FROM python:3.9.16-slim-buster
+FROM python:3.12.11-slim-trixie
 
 # Update, install tesseract, clean up
 RUN apt-get update  \
@@ -8,15 +8,15 @@ RUN apt-get update  \
     && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONPATH "${PYTHONPATH}:/app"
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH="/app:${PYTHONPATH}"
 
 # Install dependencies
 WORKDIR /app
-COPY requirements.txt ./
+COPY pyproject.toml uv.lock ./
 RUN --mount=from=ghcr.io/astral-sh/uv,source=/uv,target=/bin/uv \
-    uv pip install --system --no-cache -r requirements.txt
+    uv sync --frozen
 
 # Copy app files
 COPY . ./
