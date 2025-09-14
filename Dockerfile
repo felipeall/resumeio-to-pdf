@@ -10,13 +10,14 @@ RUN apt-get update  \
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH="/app:${PYTHONPATH}"
+    PYTHONPATH="/app:${PYTHONPATH}" \
+    UV_SYSTEM_PYTHON=1
 
 # Install dependencies
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN --mount=from=ghcr.io/astral-sh/uv,source=/uv,target=/bin/uv \
-    uv sync --frozen
+    uv pip install .
 
 # Copy app files
 COPY . ./
