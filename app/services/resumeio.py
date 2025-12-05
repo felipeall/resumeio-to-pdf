@@ -93,7 +93,7 @@ class ResumeioDownloader:
             image_url = self.IMAGES_URL.format(
                 rendering_token=self.rendering_token,
                 page_id=page_id,
-                extension=self.extension,
+                extension=self.extension.value,
                 cache_date=self.cache_date,
                 image_size=self.image_size,
             )
