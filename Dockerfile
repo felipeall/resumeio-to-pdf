@@ -14,9 +14,9 @@ ENV PYTHONPATH="${PYTHONPATH}:/app"
 
 # Install dependencies
 WORKDIR /app
-COPY requirements.txt ./
+COPY pyproject.toml uv.lock ./
 RUN --mount=from=ghcr.io/astral-sh/uv,source=/uv,target=/bin/uv \
-    uv pip install --system --no-cache -r requirements.txt
+    uv pip install .
 
 # Copy app files
 COPY . ./

@@ -15,7 +15,7 @@ templates = Jinja2Templates(directory="templates")
 def download_resume(
     rendering_token: Annotated[str, Path(min_length=24, max_length=24, pattern="^[a-zA-Z0-9]{24}$")],
     image_size: Annotated[int, Query(gt=0)] = 3000,
-    extension: Annotated[Extension, Query(...)] = Extension.jpeg,
+    extension: Annotated[Extension, Query()] = Extension.jpeg,
 ):
     """
     Download a resume from resume.io and return it as a PDF.
@@ -26,8 +26,8 @@ def download_resume(
         Rendering Token of the resume to download.
     image_size : int, optional
         Size of the images to download, by default 3000.
-    extension : str, optional
-        Image extension to download, by default "jpg".
+    extension : Extension, optional
+        Image extension to download, by default "jpeg".
 
     Returns
     -------
