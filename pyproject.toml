@@ -5,18 +5,18 @@ description = "Download your resume from resume.io as PDF"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi>=0.116.1",
-    "jinja2>=3.1.6",
-    "pillow>=11.3.0",
-    "pypdf>=6.0.0",
-    "pytesseract>=0.3.13",
-    "requests>=2.32.5",
-    "uvicorn>=0.35.0",
+    "fastapi==0.135.3",
+    "jinja2==3.1.6",
+    "pillow==12.2.0",
+    "pypdf==6.10.0",
+    "pytesseract==0.3.13",
+    "requests==2.33.1",
+    "uvicorn==0.44.0",
 ]
 [dependency-groups]
 dev = [
-    "black>=25.1.0",
-    "ruff>=0.12.12",
+    "black==26.3.1",
+    "ruff==0.15.10",
 ]
 
 [tool.black]
