@@ -30,7 +30,7 @@ class ResumeioDownloader:
 
     rendering_token: str
     extension: Extension = Extension.jpeg
-    image_size: int = 3000
+    image_size: int = 2000
     METADATA_URL: str = "https://ssr.resume.tools/meta/{rendering_token}?cache={cache_date}"
     IMAGES_URL: str = (
         "https://ssr.resume.tools/to-image/{rendering_token}-{page_id}.{extension}?cache={cache_date}&size={image_size}"
@@ -60,7 +60,7 @@ class ResumeioDownloader:
             page_scale = max(page.mediabox.height / metadata_h, page.mediabox.width / metadata_w)
             pdf.add_page(page)
 
-            for link in self.metadata[i].get("links"):
+            for link in self.metadata[i].get("links") or []:
                 link_url = link.pop("url")
                 link.update((k, v * page_scale) for k, v in link.items())
                 x, y, w, h = link.values()
