@@ -1,4 +1,5 @@
-FROM python:3.12.13-slim
+FROM python:3.12-slim-trixie
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Update, install tesseract, clean up
 RUN apt-get update  \
@@ -14,15 +15,16 @@ ENV PYTHONUNBUFFERED=1 \
     UV_SYSTEM_PYTHON=true \
     UV_PROJECT_ENVIRONMENT="/usr/local"
 
+
 # Install dependencies
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
-RUN --mount=from=ghcr.io/astral-sh/uv,source=/uv,target=/bin/uv \
-    uv sync --no-editable --frozen --no-dev
+RUN uv sync --no-editable --frozen --no-dev
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Copy app files
-COPY . ./
+COPY . .
 
 # Run app
 EXPOSE 8000
-CMD [ "python", "app/main.py" ]
+CMD [ "python", "main.py" ]
