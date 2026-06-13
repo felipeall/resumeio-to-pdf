@@ -21,6 +21,7 @@
             align-items: center;
             justify-content: center;
             gap: 3rem;
+            padding: 2rem;
         }
 
         .links {
@@ -30,6 +31,7 @@
             display: flex;
             align-items: center;
             gap: 1rem;
+            padding: 1rem;
         }
 
         .title {
@@ -51,6 +53,8 @@
             border: 1px solid #666666;
             font-family: "Inter", sans-serif;
             font-size: 1rem;
+            resize: vertical;
+            min-height: 17rem;
         }
 
         .btn {
@@ -66,6 +70,11 @@
             cursor: pointer;
             width: 12rem;
             height: 3.5rem;
+        }
+
+        .btn:disabled {
+            background-color: #999999;
+            cursor: not-allowed;
         }
 
         #loader {
@@ -85,32 +94,32 @@
 
         .spinner_V8m1 {
             transform-origin: center;
-            animation: spinner_zKoa 2s linear infinite
+            animation: spinner_zKoa 2s linear infinite;
         }
 
         .spinner_V8m1 circle {
             stroke-linecap: round;
-            animation: spinner_YpZS 1.5s ease-in-out infinite
+            animation: spinner_YpZS 1.5s ease-in-out infinite;
         }
 
         @keyframes spinner_zKoa {
             100% {
-                transform: rotate(360deg)
+                transform: rotate(360deg);
             }
         }
 
         @keyframes spinner_YpZS {
             0% {
                 stroke-dasharray: 0 150;
-                stroke-dashoffset: 0
+                stroke-dashoffset: 0;
             }
             47.5% {
                 stroke-dasharray: 42 150;
-                stroke-dashoffset: -16
+                stroke-dashoffset: -16;
             }
             95%, 100% {
                 stroke-dasharray: 42 150;
-                stroke-dashoffset: -59
+                stroke-dashoffset: -59;
             }
         }
 
@@ -132,20 +141,19 @@
             animation: shake 0.1s;
             animation-iteration-count: 1;
         }
-
     </style>
 </head>
 <body>
 <div class="container">
     <div class="links">
         <iframe  src="https://ghbtns.com/github-btn.html?user=felipeall&repo=resumeio-to-pdf&type=star&count=true&size=large" frameborder="0" scrolling="0" width="130" height="30" title="GitHub"></iframe>
-        <a href="https://www.buymeacoffee.com/felipeall" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important;width: 160px !important;" ></a>
+        <a href="https://www.buymeacoffee.com/felipeall" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important;width: 160px !important;"></a>
     </div>
     <h1 class="title">Resume.io to PDF</h1>
-    <form method="post" class="resume_form" id="downloadForm">
-        <input type="text" class="resume" name="rendering_token" placeholder="Enter your resume `renderingToken`" aria-label="Id" maxlength="24">
-        <span class="error">Your resume `renderingToken` must be a 24-character alphanumeric string</span>
-        <button id="submit-btn" class="btn" type="submit"><span id="submit-text">Download</span>
+    <form method="post" action="/download" class="resume_form" id="downloadForm">
+        <textarea class="resume" name="document" rows="6" placeholder="Paste your resume document JSON" aria-label="Document JSON"></textarea>
+        <span class="error" id="document-error">Please paste a valid resume document JSON</span>
+        <button id="submit-btn" class="btn" type="submit" disabled><span id="submit-text">Download</span>
             <svg id="loader" width="23" height="23" stroke="#fff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g class="spinner_V8m1">
                     <circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle>
@@ -155,7 +163,6 @@
     </form>
 </div>
 
-
 <script>
     window.addEventListener('pageshow', function() {
         document.getElementById('loader').style.display = 'none';
@@ -163,30 +170,31 @@
     });
 
     const downloadForm = document.getElementById("downloadForm");
-    const errorMessage = document.querySelector('.error');
-    const inputField = document.querySelector('.resume');
+    const documentInput = document.querySelector('textarea[name="document"]');
+    const documentError = document.getElementById('document-error');
+    const submitBtn = document.getElementById('submit-btn');
+
+    documentInput.addEventListener('input', function () {
+        const doc = this.value.trim();
+        let valid = false;
+        if (doc) {
+            try { JSON.parse(doc); valid = true; } catch {}
+        }
+        submitBtn.disabled = !valid;
+        if (valid) {
+            documentError.style.display = 'none';
+            documentInput.classList.remove('error-border');
+        } else if (doc) {
+            documentError.style.display = 'block';
+            documentInput.classList.add('error-border');
+        } else {
+            documentError.style.display = 'none';
+            documentInput.classList.remove('error-border');
+        }
+    });
 
     downloadForm.addEventListener("submit", function (e) {
         e.preventDefault();
-        const rendering_token = new FormData(downloadForm).get('rendering_token').toString();
-        const regex = /^[a-zA-Z0-9]{24}$/;
-
-        if (!regex.test(rendering_token)) {
-            errorMessage.style.display = 'block';
-            inputField.classList.add('error-border');
-            inputField.classList.remove('shake');
-
-            setTimeout(function() {
-                inputField.classList.add('shake');
-            }, 100);
-
-            return;
-        } else {
-            errorMessage.style.display = 'none';
-            inputField.classList.remove('error-border', 'shake');
-        }
-
-        downloadForm.action = '/download/' + rendering_token;
         document.getElementById('submit-text').style.display = 'none';
         document.getElementById('loader').style.display = 'block';
         this.submit();
