@@ -1,7 +1,7 @@
 import json
 from typing import Annotated
 
-from fastapi import APIRouter, Form, Path, Query, Request, Response
+from fastapi import APIRouter, Form, HTTPException, Path, Query, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
@@ -16,9 +16,14 @@ def download_resume(document: Annotated[str, Form()]):
     """Download a resume from a document JSON payload and return it as a PDF."""
     document_dict = json.loads(document)
     rendering_token = document_dict.get("renderingToken", "resume")
-    renderer = ResumeioRenderer(document=document_dict)
+    try:
+        pdf = ResumeioRenderer(document=document_dict).generate_pdf()
+    except HTTPException:
+        # Resume.io's worker changes independently from this application. Use
+        # its image endpoint when the worker cannot render the document.
+        pdf = ResumeioDownloader(rendering_token=rendering_token).generate_pdf()
     return Response(
-        renderer.generate_pdf(),
+        pdf,
         media_type="application/pdf",
         headers={"Content-Disposition": f'inline; filename="{rendering_token}.pdf"'},
     )

@@ -245,20 +245,16 @@ class ResumeioRenderer:
 
     def _render(self, document: dict, config: dict) -> bytes:
         """Run the rendering Web Worker via Node.js and return the PDF bytes."""
-        print('PY_DOC_KEYS:', list(document.keys()))
-        # Ensure the worker always receives a document object with a top-level `resume` key
+        # The worker reads template/section fields from the document root and
+        # some components also read the original object from `document.resume`.
         if isinstance(document, dict) and "resume" in document:
             resume_obj = document["resume"]
         else:
             resume_obj = document
 
-        doc_for_worker = {"resume": resume_obj}
-        for k in ("locale", "type", "templateConfig"):
-            if isinstance(document, dict) and k in document:
-                doc_for_worker[k] = document[k]
-
+        document_for_worker = {**resume_obj, "resume": resume_obj}
         payload = json.dumps({
-            "document": doc_for_worker,
+            "document": document_for_worker,
             "config": config,
             "workerDir": str(WORKER_CACHE_DIR),
         })

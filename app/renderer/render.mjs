@@ -24,18 +24,6 @@ if (!process.stdin.isTTY) {
   });
 }
 const { document: doc, config, workerDir } = JSON.parse(input);
-try {
-  process.stderr.write(`DOC_KEYS:${JSON.stringify(Object.keys(doc || {}))}\n`);
-  try {
-    const payloadPreview = JSON.stringify(JSON.parse(input), null, 2).slice(0, 2000);
-    process.stderr.write(`PAYLOAD_PREVIEW:${payloadPreview}\n`);
-  } catch (e) {
-    process.stderr.write(`PAYLOAD_PREVIEW_ERROR:${String(e)}\n`);
-  }
-} catch (e) {
-  process.stderr.write(`DOC_KEYS_ERROR:${String(e)}\n`);
-}
-
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const WORKER_DIR = workerDir || join(__dirname, ".worker_cache");
 
@@ -127,11 +115,6 @@ const sandbox = {
   crypto: globalThis.crypto,
 
   postMessage(data) {
-    try {
-      process.stderr.write(`WORKER_POST:${JSON.stringify(data)}\n`);
-    } catch (e) {
-      process.stderr.write(`WORKER_POST_ERROR:${String(e)}\n`);
-    }
     if (data.success) resolveResult(data.result);
     else rejectResult(new Error(data.error?.message || "Rendering failed"));
   },
