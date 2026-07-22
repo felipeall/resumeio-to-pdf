@@ -4,19 +4,19 @@ Download your resume from [resume.io](https://resume.io) as a PDF file.
 
 <div align="center"><a href="https://resumeio-to-pdf.fly.dev/"><img src="https://github.com/felipeall/resumeio-to-pdf/assets/20917430/b7edfda4-4768-4659-af68-561e1effe628" width="700" /></a></div>
 
-Open the application, enter your resume `renderingToken` and click the download button. 
-It will automatically download the first page of your resume as an image, convert it to a PDF file and run OCR to extract the text.
+Open the application, paste your resume document JSON, and click the download button.
+It uses resume.io's own rendering engine to generate a pixel-perfect, full multi-page PDF of your resume.
 
 > **Note:** Due to recent changes in resume.io's rendering service, only the first page of the resume can be downloaded and the maximum image resolution is capped at 2000px.
 
-### How to find your renderingToken
+### How to find your resume document JSON
 
-Resumes: https://resume.io/api/app/resumes
-
-Cover Letters: https://resume.io/api/app/cover-letters/
-
-You will see a list of your resumes. Find the one you want to download and get the `renderingToken` from 
-the payload.
+1. Log in to https://resume.io
+2. Open your browser's developer tools (F12)
+3. Go to the Network tab
+4. Navigate to your resume editor or visit https://resume.io/api/app/resumes
+5. Find the API response for your resume (e.g., https://resume.io/api/app/resumes/{id})
+6. Copy the full JSON response — this is your resume document JSON
 
 ### How to run the application
 

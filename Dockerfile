@@ -4,6 +4,7 @@ FROM python:3.12.13-slim
 RUN apt-get update  \
     && apt-get install -y --no-install-recommends \
     tesseract-ocr \
+    nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -19,6 +20,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN --mount=from=ghcr.io/astral-sh/uv,source=/uv,target=/bin/uv \
     uv sync --no-editable --frozen --no-dev
+RUN python -m pip install python-multipart
 
 # Copy app files
 COPY . ./

@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Resume Preview</title>
+  <style>html,body{height:100%;margin:0}body{display:flex;align-items:center;justify-content:center;font-family:Arial}</style>
+</head>
+<body>
+<script>
+(async function(){
+  try {
+    const payload = await fetch('payload_debug.json').then(r=>r.json());
+    const doc = (payload.document && payload.document.resume) ? payload.document.resume : payload.document;
+    const config = payload.config || {};
+    const worker = new Worker('rendering.js');
+    worker.onmessage = (e) => {
+      const d = e.data;
+      if (d && d.success) {
+        const arr = new Uint8Array(d.result);
+        // expose base64 for puppeteer to fetch
+        const bin = Array.from(arr).map((b) => String.fromCharCode(b)).join('');
+        window.__PDF_BASE64__ = btoa(bin);
+        window.__PDF_BYTES__ = arr.length;
+        const blob = new Blob([arr], {type: 'application/pdf'});
+        const url = URL.createObjectURL(blob);
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%'; iframe.style.height = '100%';
+        iframe.src = url;
+        document.body.appendChild(iframe);
+        document.title = 'READY';
+      } else {
+        const msg = d && d.error ? JSON.stringify(d.error) : 'unknown error';
+        document.body.textContent = 'WORKER ERROR: ' + msg;
+        document.title = 'ERROR';
+      }
+    };
+    worker.postMessage({taskId: 'render', document: doc, config});
+  } catch (e) {
+    document.body.textContent = 'INIT ERROR: ' + String(e);
+    document.title = 'ERROR';
+  }
+})();
+</script>
+</body>
+</html>
