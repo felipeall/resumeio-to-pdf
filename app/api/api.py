@@ -1,14 +1,44 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Path, Query, Request, Response
+from fastapi import APIRouter, Body, Path, Query, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.schemas.resumeio import Extension
+from app.services.renderer import ResumeioRenderer
 from app.services.resumeio import ResumeioDownloader
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+
+
+@router.post("/render")
+def render_resume(
+    document: Annotated[dict, Body()],
+    locale: Annotated[str, Query(pattern="^[a-z]{2}(-[a-zA-Z]{2})?$")] = "en",
+):
+    """
+    Render every page of a resume.io document and return it as a PDF.
+
+    Parameters
+    ----------
+    document : dict
+        Resume document as served by https://resume.io/api/app/resumes/{id}.
+    locale : str, optional
+        Locale used to pick the renderer configuration, by default "en".
+
+    Returns
+    -------
+    fastapi.responses.Response
+        A PDF representation of the resume with appropriate headers for inline display.
+    """
+    renderer = ResumeioRenderer(document=document, locale=locale)
+    name = document.get("renderingToken") or document.get("id") or "resume"
+    return Response(
+        renderer.generate_pdf(),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{name}.pdf"'},
+    )
 
 
 @router.post("/download/{rendering_token}")
