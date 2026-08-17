@@ -4,19 +4,22 @@ Download your resume from [resume.io](https://resume.io) as a PDF file.
 
 <div align="center"><a href="https://resumeio-to-pdf.fly.dev/"><img src="https://github.com/felipeall/resumeio-to-pdf/assets/20917430/b7edfda4-4768-4659-af68-561e1effe628" width="700" /></a></div>
 
-Open the application, enter your resume `renderingToken` and click the download button. 
-It will automatically download the first page of your resume as an image, convert it to a PDF file and run OCR to extract the text.
+Open the application, paste your resume JSON and click the download button. It renders every page with
+resume.io's own rendering worker, so the PDF keeps selectable text instead of being an OCR'd image.
 
-> **Note:** Due to recent changes in resume.io's rendering service, only the first page of the resume can be downloaded and the maximum image resolution is capped at 2000px.
+### How to find your resume JSON
 
-### How to find your renderingToken
+Open https://resume.io/api/app/resumes while logged in, find the resume you want and note its `id`.
+Then open `https://resume.io/api/app/resumes/{id}` and copy the whole payload.
 
-Resumes: https://resume.io/api/app/resumes
+### Downloading a single page instead
 
-Cover Letters: https://resume.io/api/app/cover-letters/
+Entering a `renderingToken` still downloads the first page as an image, converts it to a PDF file and runs
+OCR to extract the text. That path needs no login, but resume.io's image endpoint only ever renders page one
+and caps the resolution at 2000px.
 
-You will see a list of your resumes. Find the one you want to download and get the `renderingToken` from 
-the payload.
+You will find the `renderingToken` in the same payload, and for cover letters under
+https://resume.io/api/app/cover-letters/.
 
 ### How to run the application
 
@@ -41,6 +44,10 @@ docker run -p 8000:8000 resumeio-to-pdf
 ```
 
 Open your browser and access http://localhost:8000
+
+Running outside Docker additionally needs Node.js 18 or newer on the `PATH`, since the rendering worker
+runs there. On the first render the worker and its chunks (~3.8 MB) are downloaded from resume.io into
+`/tmp/resumeio-worker`, or into `$RESUMEIO_WORKER_CACHE` when set.
 
 ### Disclaimer
 

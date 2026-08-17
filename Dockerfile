@@ -4,6 +4,7 @@ FROM python:3.12.13-slim
 RUN apt-get update  \
     && apt-get install -y --no-install-recommends \
     tesseract-ocr \
+    nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
