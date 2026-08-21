@@ -5,7 +5,15 @@ import vm from "node:vm";
 
 const STARTUP_TIMEOUT_MS = 10_000;
 const ALLOWED_HOST = /(^|\.)resume\.io$/;
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+const MAX_REDIRECTS = 5;
 const RENDER_TIMEOUT_MS = 60_000;
+
+function assertAllowed(target) {
+  if (target.protocol !== "data:" && !ALLOWED_HOST.test(target.hostname)) {
+    throw new Error(`blocked request to ${target.hostname || target.protocol}`);
+  }
+}
 
 function readStdin() {
   return new Promise((resolve, reject) => {
@@ -47,12 +55,22 @@ Object.assign(context, {
   clearInterval: clearInterval.bind(globalThis),
   queueMicrotask: queueMicrotask.bind(globalThis),
   structuredClone: structuredClone.bind(globalThis),
-  fetch(input, init) {
-    const target = new URL(input?.url ?? input, host);
-    if (target.protocol !== "data:" && !ALLOWED_HOST.test(target.hostname)) {
-      return Promise.reject(new Error(`blocked request to ${target.hostname}`));
+  async fetch(input, init) {
+    let target = new URL(input?.url ?? input, host);
+    assertAllowed(target);
+    let response = await fetch(input, { ...init, redirect: "manual" });
+
+    // Redirects are followed by hand so every hop is checked, not just the first one.
+    for (let hop = 0; REDIRECT_STATUSES.has(response.status); hop++) {
+      const location = response.headers.get("location");
+      if (!location) return response;
+      if (hop === MAX_REDIRECTS) throw new Error(`too many redirects for ${target}`);
+      target = new URL(location, target);
+      assertAllowed(target);
+      response = await fetch(target, { redirect: "manual" });
     }
-    return fetch(input, init);
+
+    return response;
   },
   btoa: btoa.bind(globalThis),
   atob: atob.bind(globalThis),
