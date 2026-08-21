@@ -4,6 +4,7 @@ import { join } from "node:path";
 import vm from "node:vm";
 
 const STARTUP_TIMEOUT_MS = 10_000;
+const ALLOWED_HOST = /(^|\.)resume\.io$/;
 const RENDER_TIMEOUT_MS = 60_000;
 
 function readStdin() {
@@ -46,7 +47,13 @@ Object.assign(context, {
   clearInterval: clearInterval.bind(globalThis),
   queueMicrotask: queueMicrotask.bind(globalThis),
   structuredClone: structuredClone.bind(globalThis),
-  fetch: fetch.bind(globalThis),
+  fetch(input, init) {
+    const target = new URL(input?.url ?? input, host);
+    if (target.protocol !== "data:" && !ALLOWED_HOST.test(target.hostname)) {
+      return Promise.reject(new Error(`blocked request to ${target.hostname}`));
+    }
+    return fetch(input, init);
+  },
   btoa: btoa.bind(globalThis),
   atob: atob.bind(globalThis),
   TextEncoder,
