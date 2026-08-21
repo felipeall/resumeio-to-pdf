@@ -142,10 +142,21 @@
         <a href="https://www.buymeacoffee.com/felipeall" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important;width: 160px !important;" ></a>
     </div>
     <h1 class="title">Resume.io to PDF</h1>
+    <form method="post" class="resume_form" id="renderForm">
+        <textarea class="resume" id="documentInput" name="document" rows="8" placeholder="Paste the JSON from https://resume.io/api/app/resumes/{id} to get every page" aria-label="Resume JSON"></textarea>
+        <span class="error" id="renderError">Paste the resume JSON, not the `renderingToken`</span>
+        <button id="render-btn" class="btn" type="submit"><span id="render-text">Download all pages</span>
+            <svg id="render-loader" width="23" height="23" stroke="#fff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <g class="spinner_V8m1">
+                    <circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle>
+                </g>
+            </svg>
+        </button>
+    </form>
     <form method="post" class="resume_form" id="downloadForm">
         <input type="text" class="resume" name="rendering_token" placeholder="Enter your resume `renderingToken`" aria-label="Id" maxlength="24">
         <span class="error">Your resume `renderingToken` must be a 24-character alphanumeric string</span>
-        <button id="submit-btn" class="btn" type="submit"><span id="submit-text">Download</span>
+        <button id="submit-btn" class="btn" type="submit"><span id="submit-text">Download first page</span>
             <svg id="loader" width="23" height="23" stroke="#fff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g class="spinner_V8m1">
                     <circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle>
@@ -190,6 +201,62 @@
         document.getElementById('submit-text').style.display = 'none';
         document.getElementById('loader').style.display = 'block';
         this.submit();
+    });
+
+    const renderForm = document.getElementById("renderForm");
+    const documentInput = document.getElementById("documentInput");
+    const renderError = document.getElementById("renderError");
+    const renderText = document.getElementById("render-text");
+    const renderLoader = document.getElementById("render-loader");
+
+    const failRender = (message) => {
+        renderError.textContent = message;
+        renderError.style.display = 'block';
+        documentInput.classList.add('error-border');
+        documentInput.classList.remove('shake');
+        setTimeout(() => documentInput.classList.add('shake'), 100);
+        renderText.style.display = 'block';
+        renderLoader.style.display = 'none';
+    };
+
+    renderForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        let resume;
+        try {
+            resume = JSON.parse(documentInput.value);
+        } catch {
+            failRender('Paste the resume JSON, not the `renderingToken`');
+            return;
+        }
+
+        renderError.style.display = 'none';
+        documentInput.classList.remove('error-border', 'shake');
+        renderText.style.display = 'none';
+        renderLoader.style.display = 'block';
+
+        const response = await fetch('/render?locale=' + encodeURIComponent(resume.locale || 'en'), {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(resume),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            failRender(error.detail || 'Unable to render this resume');
+            return;
+        }
+
+        const url = URL.createObjectURL(await response.blob());
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = (resume.renderingToken || resume.id || 'resume') + '.pdf';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        renderText.style.display = 'block';
+        renderLoader.style.display = 'none';
     });
 </script>
 </body>
