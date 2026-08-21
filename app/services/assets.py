@@ -1,5 +1,6 @@
 import os
 import re
+import tempfile
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -167,7 +168,10 @@ def _discover_worker_name() -> str:
 def _cache_asset(name: str) -> Path:
     path = CACHE_DIR / name
     if not path.exists():
-        path.write_bytes(_get(f"{RESUMEIO_ORIGIN}/assets/workers/{name}").content)
+        content = _get(f"{RESUMEIO_ORIGIN}/assets/workers/{name}").content
+        with tempfile.NamedTemporaryFile(dir=CACHE_DIR, delete=False) as partial:
+            partial.write(content)
+        os.replace(partial.name, path)
     return path
 
 

@@ -1,3 +1,4 @@
+import re
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Path, Query, Request, Response
@@ -7,6 +8,8 @@ from fastapi.templating import Jinja2Templates
 from app.schemas.resumeio import Extension
 from app.services.renderer import ResumeioRenderer
 from app.services.resumeio import ResumeioDownloader
+
+UNSAFE_FILENAME = re.compile(r"[^A-Za-z0-9._-]")
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -33,7 +36,7 @@ def render_resume(
         A PDF representation of the resume with appropriate headers for inline display.
     """
     renderer = ResumeioRenderer(document=document, locale=locale)
-    name = document.get("renderingToken") or document.get("id") or "resume"
+    name = pdf_filename(document)
     return Response(
         renderer.generate_pdf(),
         media_type="application/pdf",
@@ -91,3 +94,21 @@ def index(request: Request):
         "index.html",
         {"request": request},
     )
+
+
+def pdf_filename(document: dict) -> str:
+    """
+    Build a filename that is safe to put in a Content-Disposition header.
+
+    Parameters
+    ----------
+    document : dict
+        Resume document, whose identifiers are supplied by the client.
+
+    Returns
+    -------
+    str
+        File name without an extension, stripped of quotes, separators and control characters.
+    """
+    name = str(document.get("renderingToken") or document.get("id") or "")
+    return UNSAFE_FILENAME.sub("_", name) or "resume"
