@@ -153,56 +153,10 @@
             </svg>
         </button>
     </form>
-    <form method="post" class="resume_form" id="downloadForm">
-        <input type="text" class="resume" name="rendering_token" placeholder="Enter your resume `renderingToken`" aria-label="Id" maxlength="24">
-        <span class="error">Your resume `renderingToken` must be a 24-character alphanumeric string</span>
-        <button id="submit-btn" class="btn" type="submit"><span id="submit-text">Download first page</span>
-            <svg id="loader" width="23" height="23" stroke="#fff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <g class="spinner_V8m1">
-                    <circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle>
-                </g>
-            </svg>
-        </button>
-    </form>
 </div>
 
 
 <script>
-    window.addEventListener('pageshow', function() {
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('submit-text').style.display = 'block';
-    });
-
-    const downloadForm = document.getElementById("downloadForm");
-    const errorMessage = document.querySelector('.error');
-    const inputField = document.querySelector('.resume');
-
-    downloadForm.addEventListener("submit", function (e) {
-        e.preventDefault();
-        const rendering_token = new FormData(downloadForm).get('rendering_token').toString();
-        const regex = /^[a-zA-Z0-9]{24}$/;
-
-        if (!regex.test(rendering_token)) {
-            errorMessage.style.display = 'block';
-            inputField.classList.add('error-border');
-            inputField.classList.remove('shake');
-
-            setTimeout(function() {
-                inputField.classList.add('shake');
-            }, 100);
-
-            return;
-        } else {
-            errorMessage.style.display = 'none';
-            inputField.classList.remove('error-border', 'shake');
-        }
-
-        downloadForm.action = '/download/' + rendering_token;
-        document.getElementById('submit-text').style.display = 'none';
-        document.getElementById('loader').style.display = 'block';
-        this.submit();
-    });
-
     const renderForm = document.getElementById("renderForm");
     const documentInput = document.getElementById("documentInput");
     const renderError = document.getElementById("renderError");

@@ -1,20 +1,18 @@
 import re
-from pathlib import Path as FilePath
+from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Body, HTTPException, Path, Query, Request, Response
+from fastapi import APIRouter, Body, HTTPException, Query, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from resumeio_to_pdf.schemas.resumeio import Extension
 from resumeio_to_pdf.services.errors import RenderError
 from resumeio_to_pdf.services.renderer import ResumeioRenderer
-from resumeio_to_pdf.services.resumeio import ResumeioDownloader
 
 UNSAFE_FILENAME = re.compile(r"[^A-Za-z0-9._-]")
 
 router = APIRouter()
-templates = Jinja2Templates(directory=FilePath(__file__).parents[1] / "templates")
+templates = Jinja2Templates(directory=Path(__file__).parents[1] / "templates")
 
 
 @router.post("/render")
@@ -46,36 +44,6 @@ def render_resume(
         pdf,
         media_type="application/pdf",
         headers={"Content-Disposition": f'inline; filename="{pdf_filename(document)}.pdf"'},
-    )
-
-
-@router.post("/download/{rendering_token}")
-def download_resume(
-    rendering_token: Annotated[str, Path(min_length=24, max_length=24, pattern="^[a-zA-Z0-9]{24}$")],
-    image_size: Annotated[int, Query(gt=0, le=2000)] = 2000,
-    extension: Annotated[Extension, Query()] = Extension.jpeg,
-):
-    """
-    Download a resume from resume.io and return it as a PDF.
-
-    Parameters
-    ----------
-    rendering_token : str
-        Rendering Token of the resume to download.
-    image_size : int, optional
-        Size of the images to download, by default 3000.
-    extension : Extension, optional
-        Image extension to download, by default "jpeg".
-
-    Returns
-    -------
-    fastapi.responses.Response
-        A PDF representation of the resume with appropriate headers for inline display.
-    """
-    resumeio = ResumeioDownloader(rendering_token=rendering_token, image_size=image_size, extension=extension)
-    return Response(
-        resumeio.generate_pdf(),
-        headers={"Content-Disposition": f'inline; filename="{rendering_token}.pdf"'},
     )
 
 
