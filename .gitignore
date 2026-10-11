@@ -164,3 +164,8 @@ cython_debug/
 # PDF
 *.pdf
 .vercel
+
+# resume.io worker cache and local tooling
+.worker_cache/
+.serena/
+.DS_Store
