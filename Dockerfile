@@ -10,7 +10,6 @@ RUN apt-get update  \
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH="/app" \
     UV_SYSTEM_PYTHON=true \
     UV_PROJECT_ENVIRONMENT="/usr/local"
 
@@ -18,11 +17,13 @@ ENV PYTHONUNBUFFERED=1 \
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN --mount=from=ghcr.io/astral-sh/uv,source=/uv,target=/bin/uv \
-    uv sync --no-editable --frozen --no-dev
+    uv sync --no-editable --frozen --no-dev --no-install-project
 
-# Copy app files
+# Install the app
 COPY . ./
+RUN --mount=from=ghcr.io/astral-sh/uv,source=/uv,target=/bin/uv \
+    uv sync --no-editable --frozen --no-dev
 
 # Run app
 EXPOSE 8000
-CMD [ "python", "resumeio_to_pdf/main.py" ]
+CMD [ "resumeio-to-pdf", "serve", "--host", "0.0.0.0" ]

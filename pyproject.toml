@@ -1,6 +1,6 @@
 [project]
 name = "resumeio-to-pdf"
-version = "1.0.0"
+version = "2.0.0"
 description = "Download your resume from resume.io as PDF"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -10,6 +10,17 @@ dependencies = [
     "requests==2.33.1",
     "uvicorn==0.46.0",
 ]
+
+[project.scripts]
+resumeio-to-pdf = "resumeio_to_pdf.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["resumeio_to_pdf"]
+
 [dependency-groups]
 dev = [
     "black==26.3.1",
