@@ -189,15 +189,25 @@
         renderText.style.display = 'none';
         renderLoader.style.display = 'block';
 
-        const response = await fetch('/render?locale=' + encodeURIComponent(resume.locale || 'en'), {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(resume),
-        });
+        let response;
+        try {
+            response = await fetch('/render?locale=' + encodeURIComponent(resume.locale || 'en'), {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(resume),
+            });
+        } catch {
+            failRender('Unable to reach the local server. Is `resumeio-to-pdf serve` still running?');
+            return;
+        }
 
         if (!response.ok) {
             const error = await response.json().catch(() => ({}));
-            failRender(error.detail || 'Unable to render this resume');
+            // Validation errors (422) send detail as a list of {msg, ...} objects.
+            const detail = Array.isArray(error.detail)
+                ? error.detail.map((item) => item.msg).join('; ')
+                : error.detail;
+            failRender(detail || 'Unable to render this resume');
             return;
         }
 
