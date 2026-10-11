@@ -2,7 +2,7 @@ from resumeio_to_pdf import cli
 from resumeio_to_pdf.services.errors import RenderError
 
 
-def test_render_writes_the_pdf_named_after_the_rendering_token(tmp_path, monkeypatch):
+def test_render_writes_the_pdf_named_after_the_rendering_token(tmp_path, monkeypatch, capsys):
     document = tmp_path / "resume.json"
     document.write_text('{"renderingToken": "abc", "locale": "de"}')
     locales = []
@@ -17,6 +17,10 @@ def test_render_writes_the_pdf_named_after_the_rendering_token(tmp_path, monkeyp
     assert cli.main(["render", str(document)]) == 0
     assert (tmp_path / "abc.pdf").read_bytes() == b"%PDF-1.3"
     assert locales == ["de"]
+    output = capsys.readouterr().out
+    assert str(tmp_path / "abc.pdf") in output
+    assert cli.REPOSITORY_URL in output
+    assert cli.BUY_ME_A_COFFEE_URL in output
 
 
 def test_render_reports_renderer_failures(tmp_path, monkeypatch, capsys):
