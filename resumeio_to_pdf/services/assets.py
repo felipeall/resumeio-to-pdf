@@ -15,7 +15,10 @@ USER_AGENT = (
     "AppleWebKit/537.36 (KHTML, like Gecko) "
     "Chrome/136.0.0.0 Safari/537.36"
 )
-CACHE_DIR = Path(os.getenv("RESUMEIO_WORKER_CACHE", "/tmp/resumeio-worker"))
+CACHE_DIR = Path(
+    os.getenv("RESUMEIO_WORKER_CACHE")
+    or Path(os.getenv("XDG_CACHE_HOME") or Path.home() / ".cache") / "resumeio-to-pdf",
+)
 DISCOVERY_TTL_SECONDS = 3600
 
 BUILDER_BUNDLE = re.compile(r"/assets/js/builder-[a-f0-9]+\.js")
