@@ -22,6 +22,9 @@ uv tool install git+https://github.com/felipeall/resumeio-to-pdf
 This puts the `resumeio-to-pdf` command on your `PATH`. Upgrade it later with
 `uv tool upgrade resumeio-to-pdf` and remove it with `uv tool uninstall resumeio-to-pdf`.
 
+The command checks GitHub at most once a day and tells you when a newer version is available. Set
+`RESUMEIO_NO_UPDATE_CHECK=1` to turn the check off.
+
 ### 2. Get your resume JSON
 
 1. Log in to [resume.io](https://resume.io).
