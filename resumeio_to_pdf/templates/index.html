@@ -68,7 +68,7 @@
             height: 3.5rem;
         }
 
-        #loader {
+        #render-loader {
             display: none;
         }
 
@@ -145,7 +145,7 @@
     <form method="post" class="resume_form" id="renderForm">
         <textarea class="resume" id="documentInput" name="document" rows="8" placeholder="Paste the JSON from https://resume.io/api/app/resumes/{id} to get every page" aria-label="Resume JSON"></textarea>
         <span class="error" id="renderError">Paste the resume JSON, not the `renderingToken`</span>
-        <button id="render-btn" class="btn" type="submit"><span id="render-text">Download all pages</span>
+        <button id="render-btn" class="btn" type="submit"><span id="render-text">Download</span>
             <svg id="render-loader" width="23" height="23" stroke="#fff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g class="spinner_V8m1">
                     <circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle>
