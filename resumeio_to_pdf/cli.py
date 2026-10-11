@@ -6,6 +6,7 @@ from pathlib import Path
 from resumeio_to_pdf.api.api import pdf_filename
 from resumeio_to_pdf.services.errors import RenderError
 from resumeio_to_pdf.services.renderer import ResumeioRenderer
+from resumeio_to_pdf.updates import update_notice
 
 REPOSITORY_URL = "https://github.com/felipeall/resumeio-to-pdf"
 BUY_ME_A_COFFEE_URL = "https://www.buymeacoffee.com/felipeall"
@@ -13,6 +14,8 @@ BUY_ME_A_COFFEE_URL = "https://www.buymeacoffee.com/felipeall"
 
 def main(argv: list[str] | None = None) -> int:
     """Entry point of the `resumeio-to-pdf` command.
+
+    Every invocation ends with a notice when a newer version is available, including --help and usage errors.
 
     Parameters
     ----------
@@ -24,6 +27,14 @@ def main(argv: list[str] | None = None) -> int:
     int
         Process exit code.
     """
+    notice = _UpdateNotice()
+    try:
+        return _run(argv, notice)
+    finally:
+        notice.show()
+
+
+def _run(argv: list[str] | None, notice: "_UpdateNotice") -> int:
     parser = argparse.ArgumentParser(prog="resumeio-to-pdf", description="Render a resume.io resume as a PDF.")
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -40,9 +51,26 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "serve":
         import uvicorn
 
+        # The server runs until interrupted, so tell the user now rather than on shutdown.
+        notice.show()
         uvicorn.run("resumeio_to_pdf.main:app", host=args.host, port=args.port)
         return 0
     return _render(args)
+
+
+class _UpdateNotice:
+    """Print the update notice at most once per invocation."""
+
+    def __init__(self) -> None:
+        self.shown = False
+
+    def show(self) -> None:
+        if self.shown:
+            return
+        self.shown = True
+        notice = update_notice()
+        if notice:
+            print(f"\n{notice}", file=sys.stderr)
 
 
 def _render(args: argparse.Namespace) -> int:
