@@ -58,7 +58,8 @@ Object.assign(context, {
   async fetch(input, init) {
     let target = new URL(input?.url ?? input, host);
     assertAllowed(target);
-    let response = await fetch(input, { ...init, redirect: "manual" });
+    // Fetch the resolved URL, the one the allowlist approved: Node has no base URL for relative strings.
+    let response = await fetch(input instanceof Request ? input : target, { ...init, redirect: "manual" });
 
     // Redirects are followed by hand so every hop is checked, not just the first one.
     for (let hop = 0; REDIRECT_STATUSES.has(response.status); hop++) {
