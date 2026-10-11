@@ -7,7 +7,7 @@ from pathlib import Path
 
 from fastapi import HTTPException
 
-from app.services.assets import RESUMEIO_ORIGIN, ensure_bundle, fetch_renderer_config
+from resumeio_to_pdf.services.assets import RESUMEIO_ORIGIN, ensure_bundle, fetch_renderer_config
 
 RENDER_SCRIPT = Path(__file__).parents[1] / "renderer" / "render.mjs"
 NODE_BINARY = os.getenv("RESUMEIO_NODE_BINARY", "node")

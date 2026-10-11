@@ -1,6 +1,6 @@
 import pytest
 
-from app.services.assets import find_chunk_names, find_rendering_core_url, find_worker_name
+from resumeio_to_pdf.services.assets import find_chunk_names, find_rendering_core_url, find_worker_name
 
 BUILDER_BUNDLE = (
     'c.u=e=>"chunk/"+(({184:"misc",3525:"pdf-preview-renderer",9148:"rendering-core"})[e]||e)'

@@ -110,7 +110,7 @@ def ensure_bundle() -> WorkerBundle:
     Returns
     -------
     WorkerBundle
-        Cached worker ready to be executed by app/renderer/render.mjs.
+        Cached worker ready to be executed by resumeio_to_pdf/renderer/render.mjs.
 
     Raises
     ------

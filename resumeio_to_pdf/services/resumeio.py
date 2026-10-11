@@ -7,7 +7,7 @@ import requests
 from fastapi import HTTPException
 from PIL import Image
 
-from app.schemas.resumeio import Extension
+from resumeio_to_pdf.schemas.resumeio import Extension
 
 
 @dataclass
