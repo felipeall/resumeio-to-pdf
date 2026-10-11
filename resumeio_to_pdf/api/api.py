@@ -2,11 +2,12 @@ import re
 from pathlib import Path as FilePath
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Path, Query, Request, Response
+from fastapi import APIRouter, Body, HTTPException, Path, Query, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from resumeio_to_pdf.schemas.resumeio import Extension
+from resumeio_to_pdf.services.errors import RenderError
 from resumeio_to_pdf.services.renderer import ResumeioRenderer
 from resumeio_to_pdf.services.resumeio import ResumeioDownloader
 
@@ -37,11 +38,14 @@ def render_resume(
         A PDF representation of the resume with appropriate headers for inline display.
     """
     renderer = ResumeioRenderer(document=document, locale=locale)
-    name = pdf_filename(document)
+    try:
+        pdf = renderer.generate_pdf()
+    except RenderError as error:
+        raise HTTPException(status_code=error.status_code, detail=str(error)) from error
     return Response(
-        renderer.generate_pdf(),
+        pdf,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'inline; filename="{name}.pdf"'},
+        headers={"Content-Disposition": f'inline; filename="{pdf_filename(document)}.pdf"'},
     )
 
 

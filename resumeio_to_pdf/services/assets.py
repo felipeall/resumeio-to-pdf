@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import requests
-from fastapi import HTTPException
+
+from resumeio_to_pdf.services.errors import RenderError
 
 RESUMEIO_ORIGIN = "https://resume.io"
 USER_AGENT = (
@@ -114,7 +115,7 @@ def ensure_bundle() -> WorkerBundle:
 
     Raises
     ------
-    HTTPException
+    RenderError
         If resume.io does not serve the assets the worker is assembled from.
     """
     try:
@@ -124,7 +125,7 @@ def ensure_bundle() -> WorkerBundle:
         for name in find_chunk_names(worker):
             _cache_asset(name)
     except (LookupError, requests.RequestException) as error:
-        raise HTTPException(status_code=502, detail=f"Unable to fetch the resume.io renderer: {error}") from error
+        raise RenderError(f"Unable to fetch the resume.io renderer: {error}") from error
     return WorkerBundle(directory=CACHE_DIR, entry=entry)
 
 
@@ -145,7 +146,7 @@ def fetch_renderer_config(locale: str) -> dict:
         response = _get(f"{RESUMEIO_ORIGIN}/api/app/general/renderer-config/{locale}")
         return response.json()
     except requests.RequestException as error:
-        raise HTTPException(status_code=502, detail=f"Unable to fetch the renderer config: {error}") from error
+        raise RenderError(f"Unable to fetch the renderer config: {error}") from error
 
 
 def _discover_worker_name() -> str:
