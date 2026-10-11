@@ -1,53 +1,63 @@
 # Resume.io to PDF
 
-Download your resume from [resume.io](https://resume.io) as a PDF file. 
+Turn your [resume.io](https://resume.io) resume into a multi-page PDF on your own machine.
 
-<div align="center"><a href="https://resumeio-to-pdf.fly.dev/"><img src="https://github.com/felipeall/resumeio-to-pdf/assets/20917430/b7edfda4-4768-4659-af68-561e1effe628" width="700" /></a></div>
+It renders every page with resume.io's own rendering worker, the same one the resume.io editor runs in your
+browser, so the PDF keeps the original layout and selectable, vector text.
 
-Open the application, paste your resume JSON and click the download button. It renders every page with
-resume.io's own rendering worker, so the PDF keeps selectable text instead of being an OCR'd image.
+> **Note:** there is no hosted version anymore. The tool runs only locally, so your resume never leaves your
+> computer except to talk to resume.io itself.
 
-### How to find your resume JSON
+### Requirements
 
-Open https://resume.io/api/app/resumes while logged in, find the resume you want and note its `id`.
-Then open `https://resume.io/api/app/resumes/{id}` and copy the whole payload.
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
+- [Node.js](https://nodejs.org/) 18 or newer on the `PATH` (the rendering worker runs there)
 
-### Downloading a single page instead
+### 1. Get your resume JSON
 
-Entering a `renderingToken` still downloads the first page as an image, converts it to a PDF file and runs
-OCR to extract the text. That path needs no login, but resume.io's image endpoint only ever renders page one
-and caps the resolution at 2000px.
+1. Log in to [resume.io](https://resume.io).
+2. Open https://resume.io/api/app/resumes in the same browser and note the `id` of the resume you want.
+3. Open `https://resume.io/api/app/resumes/{id}` and save the page as `resume.json`.
 
-You will find the `renderingToken` in the same payload, and for cover letters under
-https://resume.io/api/app/cover-letters/.
+The rendering token alone is no longer enough: resume.io's image endpoint only ever serves the first page.
 
-### How to run the application
+### 2. Render it
 
-Clone the repository
+From the command line:
+
+```bash
+uvx --from git+https://github.com/felipeall/resumeio-to-pdf resumeio-to-pdf render resume.json
+```
+
+This writes `<renderingToken>.pdf` to the current folder. Use `-o my-resume.pdf` to pick the file name,
+`--locale` to override the resume's language, and `-` instead of a path to read the JSON from stdin.
+
+Or with the web UI on http://127.0.0.1:8000:
+
+```bash
+uvx --from git+https://github.com/felipeall/resumeio-to-pdf resumeio-to-pdf serve
+```
+
+Or with Docker, which bundles Node.js:
+
 ```bash
 git clone https://github.com/felipeall/resumeio-to-pdf.git
-```
-    
-Go to the project's root folder
-```bash
 cd resumeio-to-pdf
-```
-
-Build the image
-```bash
 docker build -t resumeio-to-pdf .
+docker run -p 127.0.0.1:8000:8000 resumeio-to-pdf
 ```
 
-Run the container
+On the first render the worker and its chunks (~3.8 MB) are downloaded from resume.io into
+`~/.cache/resumeio-to-pdf`, or into `$RESUMEIO_WORKER_CACHE` when set. Nothing from resume.io is stored in this
+repository.
+
+### Development
+
 ```bash
-docker run -p 8000:8000 resumeio-to-pdf
+uv sync
+uv run pytest
+uv run ruff check .
 ```
-
-Open your browser and access http://localhost:8000
-
-Running outside Docker additionally needs Node.js 18 or newer on the `PATH`, since the rendering worker
-runs there. On the first render the worker and its chunks (~3.8 MB) are downloaded from resume.io into
-`/tmp/resumeio-worker`, or into `$RESUMEIO_WORKER_CACHE` when set.
 
 ### Disclaimer
 
