@@ -13,7 +13,16 @@ browser, so the PDF keeps the original layout and selectable, vector text.
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - [Node.js](https://nodejs.org/) 18 or newer on the `PATH` (the rendering worker runs there)
 
-### 1. Get your resume JSON
+### 1. Install
+
+```bash
+uv tool install git+https://github.com/felipeall/resumeio-to-pdf
+```
+
+This puts the `resumeio-to-pdf` command on your `PATH`. Upgrade it later with
+`uv tool upgrade resumeio-to-pdf` and remove it with `uv tool uninstall resumeio-to-pdf`.
+
+### 2. Get your resume JSON
 
 1. Log in to [resume.io](https://resume.io).
 2. Open https://resume.io/api/app/resumes in the same browser and note the `id` of the resume you want.
@@ -21,12 +30,12 @@ browser, so the PDF keeps the original layout and selectable, vector text.
 
 The rendering token alone is no longer enough: resume.io's image endpoint only ever serves the first page.
 
-### 2. Render it
+### 3. Render it
 
 From the command line:
 
 ```bash
-uvx --from git+https://github.com/felipeall/resumeio-to-pdf resumeio-to-pdf render resume.json
+resumeio-to-pdf render resume.json
 ```
 
 This writes `<renderingToken>.pdf` to the current folder. Use `-o my-resume.pdf` to pick the file name,
@@ -35,7 +44,7 @@ This writes `<renderingToken>.pdf` to the current folder. Use `-o my-resume.pdf`
 Or with the web UI on http://127.0.0.1:8000:
 
 ```bash
-uvx --from git+https://github.com/felipeall/resumeio-to-pdf resumeio-to-pdf serve
+resumeio-to-pdf serve
 ```
 
 Or with Docker, which bundles Node.js:
