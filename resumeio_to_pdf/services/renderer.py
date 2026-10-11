@@ -5,9 +5,8 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from fastapi import HTTPException
-
 from resumeio_to_pdf.services.assets import RESUMEIO_ORIGIN, ensure_bundle, fetch_renderer_config
+from resumeio_to_pdf.services.errors import RenderError
 
 RENDER_SCRIPT = Path(__file__).parents[1] / "renderer" / "render.mjs"
 NODE_BINARY = os.getenv("RESUMEIO_NODE_BINARY", "node")
@@ -40,7 +39,7 @@ class ResumeioRenderer:
 
         Raises
         ------
-        HTTPException
+        RenderError
             If the renderer is unavailable or fails to produce a PDF.
         """
         bundle = ensure_bundle()
@@ -62,12 +61,12 @@ class ResumeioRenderer:
                 timeout=RENDER_TIMEOUT_SECONDS,
             )
         except FileNotFoundError as error:
-            raise HTTPException(status_code=500, detail=f"Node.js is required to render resumes: {error}") from error
+            raise RenderError(f"Node.js 18+ is required to render resumes: {error}", status_code=500) from error
         except subprocess.TimeoutExpired as error:
-            raise HTTPException(status_code=504, detail="Rendering the resume timed out") from error
+            raise RenderError("Rendering the resume timed out", status_code=504) from error
 
         if process.returncode != 0 or not process.stdout.startswith(b"%PDF"):
-            raise HTTPException(status_code=502, detail=f"Unable to render the resume: {_last_error(process.stderr)}")
+            raise RenderError(f"Unable to render the resume: {_last_error(process.stderr)}")
 
         return process.stdout
 
