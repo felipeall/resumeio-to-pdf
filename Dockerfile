@@ -1,9 +1,8 @@
 FROM python:3.12.13-slim
 
-# Update, install tesseract, clean up
+# Update, install Node.js for the rendering worker, clean up
 RUN apt-get update  \
     && apt-get install -y --no-install-recommends \
-    tesseract-ocr \
     nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
