@@ -7,6 +7,9 @@ from resumeio_to_pdf.api.api import pdf_filename
 from resumeio_to_pdf.services.errors import RenderError
 from resumeio_to_pdf.services.renderer import ResumeioRenderer
 
+REPOSITORY_URL = "https://github.com/felipeall/resumeio-to-pdf"
+BUY_ME_A_COFFEE_URL = "https://www.buymeacoffee.com/felipeall"
+
 
 def main(argv: list[str] | None = None) -> int:
     """Entry point of the `resumeio-to-pdf` command.
@@ -62,7 +65,13 @@ def _render(args: argparse.Namespace) -> int:
 
     output = Path(args.output or f"{pdf_filename(document)}.pdf")
     output.write_bytes(pdf)
-    print(f"saved {output}")
+    print(
+        f"Your resume is ready: {output.resolve()}\n"
+        "\n"
+        "If this tool helped you, please consider:\n"
+        f"  - Starring the repository: {REPOSITORY_URL}\n"
+        f"  - Buying me a coffee:       {BUY_ME_A_COFFEE_URL}",
+    )
     return 0
 
 
