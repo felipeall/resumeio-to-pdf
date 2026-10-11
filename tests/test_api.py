@@ -1,4 +1,4 @@
-from app.api.api import pdf_filename
+from resumeio_to_pdf.api.api import pdf_filename
 
 
 def test_pdf_filename_prefers_the_rendering_token():

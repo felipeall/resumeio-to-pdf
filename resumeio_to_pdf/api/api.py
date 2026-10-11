@@ -1,18 +1,19 @@
 import re
+from pathlib import Path as FilePath
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Path, Query, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from app.schemas.resumeio import Extension
-from app.services.renderer import ResumeioRenderer
-from app.services.resumeio import ResumeioDownloader
+from resumeio_to_pdf.schemas.resumeio import Extension
+from resumeio_to_pdf.services.renderer import ResumeioRenderer
+from resumeio_to_pdf.services.resumeio import ResumeioDownloader
 
 UNSAFE_FILENAME = re.compile(r"[^A-Za-z0-9._-]")
 
 router = APIRouter()
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=FilePath(__file__).parents[1] / "templates")
 
 
 @router.post("/render")

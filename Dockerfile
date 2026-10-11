@@ -26,4 +26,4 @@ COPY . ./
 
 # Run app
 EXPOSE 8000
-CMD [ "python", "app/main.py" ]
+CMD [ "python", "resumeio_to_pdf/main.py" ]
