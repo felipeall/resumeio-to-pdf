@@ -64,14 +64,14 @@ Object.assign(context, {
     // Redirects are followed by hand so every hop is checked, not just the first one.
     for (let hop = 0; REDIRECT_STATUSES.has(response.status); hop++) {
       const location = response.headers.get("location");
-      if (!location) return response;
+      if (!location) return toContextRealm(response);
       if (hop === MAX_REDIRECTS) throw new Error(`too many redirects for ${target}`);
       target = new URL(location, target);
       assertAllowed(target);
       response = await fetch(target, { redirect: "manual" });
     }
 
-    return response;
+    return toContextRealm(response);
   },
   btoa: btoa.bind(globalThis),
   atob: atob.bind(globalThis),
@@ -91,6 +91,16 @@ Object.assign(context, {
   webpackChunk_rio_web_worker: [],
 });
 context.self = context;
+
+// Bytes read from Node's fetch belong to the host realm, so the worker's Buffer polyfill rejects
+// them (`instanceof ArrayBuffer` is false across realms) and silently drops images such as the
+// profile photo. Copy them into an ArrayBuffer of the worker's own realm.
+const ContextUint8Array = vm.runInContext("Uint8Array", context);
+function toContextRealm(response) {
+  const arrayBuffer = response.arrayBuffer.bind(response);
+  response.arrayBuffer = async () => ContextUint8Array.from(new Uint8Array(await arrayBuffer())).buffer;
+  return response;
+}
 
 vm.runInContext(readFileSync(join(assetsDir, entry), "utf8"), context, { filename: entry });
 
